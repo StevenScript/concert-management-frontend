@@ -7,29 +7,36 @@ on:
     branches: [ "**" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository code.
-      - name: Checkout Repository
+      # Step 1: Check out code
+      - name: Check out code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js environment.
-      - name: Set up Node.js 16
+      # Step 2: Set up Node.js (latest LTS or specify version, e.g., 18)
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
-          cache: 'npm'
+          node-version: '18'
 
-      # Step 3: Install project dependencies.
-      - name: Install Dependencies
+      # Step 3: Cache node modules
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
         run: npm install
 
-      # Step 4: Run tests (if you have tests, otherwise this step will be skipped).
-      - name: Run Tests
-        run: npm run test --if-present
+      # Step 5: Run tests
+      - name: Run tests
+        run: npm test -- --watchAll=false
 
-      # Step 5: Build the React application.
-      - name: Build Application
+      # Step 6: Build the project
+      - name: Build the project
         run: npm run build

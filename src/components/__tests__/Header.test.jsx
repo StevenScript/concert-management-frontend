@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import Header from "../Header";
+import Header from "../header";
 
 // Import jest-dom to extend the expect matchers
 import "@testing-library/jest-dom";

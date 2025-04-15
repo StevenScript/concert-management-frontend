@@ -13,7 +13,7 @@ const FooterContainer = styled.footer`
 
 const Footer = () => {
   return (
-    <FooterContainer>
+    <FooterContainer data-testid="footer">
       &copy; {new Date().getFullYear()} Concert Management. All rights reserved.
     </FooterContainer>
   );

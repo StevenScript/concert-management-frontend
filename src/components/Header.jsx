@@ -15,7 +15,7 @@ const Title = styled.h1`
 
 const Header = () => {
   return (
-    <HeaderContainer>
+    <HeaderContainer data-testid="header">
       <Title>Concert Management</Title>
     </HeaderContainer>
   );

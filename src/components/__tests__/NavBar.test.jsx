@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import NavBar from "../Navbar";
+import NavBar from "../NavBar";
 
 describe("NavBar component", () => {
   test("renders with correct navigation links", () => {

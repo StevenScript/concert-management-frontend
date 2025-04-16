@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter } from "react-router"; // Use react-router-dom here
+import { BrowserRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import MainApp from "./MainApp";
 

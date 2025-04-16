@@ -1,10 +1,39 @@
 import React from "react";
+import { Typography, CircularProgress, List, ListItem } from "@mui/material";
+import useFetchData from "../hooks/useFetchData";
 
 function ArtistList() {
+  const {
+    data: artists,
+    isLoading,
+    isError,
+    error,
+  } = useFetchData("http://example.com/api/artists");
+
   return (
     <section>
-      <h1>Artists</h1>
-      <p>List of artists goes here...</p>
+      {/* this H1 is always rendered */}
+      <Typography variant="h4" component="h1">
+        Artists
+      </Typography>
+
+      {isLoading && <CircularProgress data-testid="loading-indicator" />}
+
+      {isError && (
+        <Typography variant="body1" color="error" data-testid="error-message">
+          {error.message}
+        </Typography>
+      )}
+
+      {artists && (
+        <List>
+          {artists.map((a) => (
+            <ListItem key={a.id}>
+              <Typography>{a.name}</Typography>
+            </ListItem>
+          ))}
+        </List>
+      )}
     </section>
   );
 }

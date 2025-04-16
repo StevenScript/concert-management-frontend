@@ -3,13 +3,23 @@ import { MemoryRouter } from "react-router";
 import { render, screen } from "@testing-library/react";
 import AppRoutes from "../AppRoutes";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// same test‑only client
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
+
+const renderWithProviders = (ui, { route = "/" } = {}) =>
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
+    </QueryClientProvider>
+  );
+
 describe("AppRoutes", () => {
   test("renders Home page on /", () => {
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <AppRoutes />
-      </MemoryRouter>
-    );
+    renderWithProviders(<AppRoutes />, { route: "/" });
     const homeHeading = screen.getByRole("heading", {
       name: /welcome to the concert site/i,
     });
@@ -17,14 +27,10 @@ describe("AppRoutes", () => {
   });
 
   test("renders ArtistList on /artists", () => {
-    render(
-      <MemoryRouter initialEntries={["/artists"]}>
-        <AppRoutes />
-      </MemoryRouter>
-    );
+    renderWithProviders(<AppRoutes />, { route: "/artists" });
     const artistHeading = screen.getByRole("heading", { name: /artists/i });
     expect(artistHeading).toBeInTheDocument();
   });
 
-  //TODO: Add more route tests as needed for /venues, /login, /admin, etc.
+  // … you can add more route tests here …
 });

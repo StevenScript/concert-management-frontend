@@ -19,6 +19,8 @@ import ManageEvents from "../pages/admin/ManageEvents";
 import ManageVenues from "../pages/admin/ManageVenues";
 import ManageTickets from "../pages/admin/ManageTickets";
 
+import ProtectedRoute from "./ProtectedRoute";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -36,11 +38,46 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
 
       {/* ---------------- ADMIN ROUTES ---------------- */}
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      <Route path="/admin/artists" element={<ManageArtists />} />
-      <Route path="/admin/events" element={<ManageEvents />} />
-      <Route path="/admin/venues" element={<ManageVenues />} />
-      <Route path="/admin/tickets" element={<ManageTickets />} />
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/artists"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <ManageArtists />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/events"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <ManageEvents />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/venues"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <ManageVenues />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/tickets"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <ManageTickets />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

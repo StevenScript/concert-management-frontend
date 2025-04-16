@@ -1,20 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router";
+import { useAuth } from "../contexts/AuthContext";
 
-function Login() {
+export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      await login(username, password);
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
-    <section>
+    <form onSubmit={handleSubmit}>
       <h1>Login</h1>
-      <form>
-        <label htmlFor="username">Username</label>
-        <input id="username" type="text" />
-
-        <label htmlFor="password">Password</label>
-        <input id="password" type="password" />
-
-        <button type="submit">Log In</button>
-      </form>
-    </section>
+      <label>
+        Username
+        <input
+          aria-label="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </label>
+      <label>
+        Password
+        <input
+          type="password"
+          aria-label="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </label>
+      <button type="submit">Login</button>
+      {error && <div role="alert">{error}</div>}
+    </form>
   );
 }
-
-export default Login;

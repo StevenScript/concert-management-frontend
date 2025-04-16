@@ -8,4 +8,13 @@ describe("Login Page", () => {
     const heading = screen.getByRole("heading", { name: /login/i });
     expect(heading).toBeInTheDocument();
   });
+
+  test("renders username and password inputs and a submit button", () => {
+    render(<Login />);
+    // labels ↔ inputs
+    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    // button
+    expect(screen.getByRole("button", { name: /log in/i })).toBeInTheDocument();
+  });
 });

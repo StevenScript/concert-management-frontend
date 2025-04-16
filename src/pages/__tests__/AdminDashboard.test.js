@@ -5,7 +5,8 @@ import AdminDashboard from "../admin/AdminDashboard";
 describe("AdminDashboard", () => {
   test('renders heading "Admin Dashboard"', () => {
     render(<AdminDashboard />);
-    const heading = screen.getByRole("heading", { name: /admin dashboard/i });
-    expect(heading).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /admin dashboard/i })
+    ).toBeInTheDocument();
   });
 });

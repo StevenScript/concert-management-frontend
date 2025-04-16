@@ -5,7 +5,7 @@ import AppRoutes from "../AppRoutes";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// same test‑only client
+// Test‑only client
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false } },
 });

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router";
 import {
   Typography,
   CircularProgress,
@@ -38,15 +39,9 @@ export default function ArtistList() {
         {!isLoading && !isError && Array.isArray(artists) && (
           <List>
             {artists.map((artist) => (
-              <Paper
-                key={artist.id}
-                elevation={2}
-                style={{ marginBottom: "1rem" }}
-              >
-                <ListItem>
-                  <ListItemText
-                    primary={artist.stageName || artist.username || artist.name}
-                  />
+              <Paper key={artist.id} elevation={2} style={{ margin: "1rem 0" }}>
+                <ListItem button component={Link} to={`/artists/${artist.id}`}>
+                  <ListItemText primary={artist.stageName || artist.name} />
                 </ListItem>
               </Paper>
             ))}

@@ -49,7 +49,10 @@ export function AuthProvider({ children }) {
    * @param {string} password
    */
   const login = async (username, password) => {
-    const { data } = await axios.post("/api/login", { username, password });
+    const { data } = await axios.post("http://localhost:8080/api/login", {
+      username,
+      password,
+    });
     const userObj = data.user
       ? { ...data.user, token: data.token }
       : { username: data.username, role: data.role, token: data.token };
@@ -65,7 +68,7 @@ export function AuthProvider({ children }) {
    * @param {string} role
    */
   const register = async (username, email, password, role) => {
-    const { data } = await axios.post("/api/register", {
+    const { data } = await axios.post("http://localhost:8080/api/register", {
       username,
       email,
       password,

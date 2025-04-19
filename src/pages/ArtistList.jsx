@@ -9,7 +9,12 @@ import {
 import useFetchData from "../hooks/useFetchData";
 
 export default function ArtistList() {
-  const { data: artists, isLoading, isError, error } = useFetchData("/artists");
+  const {
+    data: artists,
+    isLoading,
+    isError,
+    error,
+  } = useFetchData("http://localhost:8080/artists");
 
   return (
     <section>

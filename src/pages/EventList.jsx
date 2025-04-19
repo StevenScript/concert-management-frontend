@@ -9,7 +9,12 @@ import {
 import useFetchData from "../hooks/useFetchData";
 
 export default function EventList() {
-  const { data: events, isLoading, isError, error } = useFetchData("/events");
+  const {
+    data: events,
+    isLoading,
+    isError,
+    error,
+  } = useFetchData("http://localhost:8080/events");
 
   return (
     <section>

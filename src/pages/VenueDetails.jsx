@@ -10,10 +10,12 @@ import {
 
 export default function VenueDetails() {
   const { venueId } = useParams();
-
-  const { data, isLoading, isError, error } = useFetchData(
-    `http://localhost:8080/venues/${venueId}`
-  );
+  const {
+    data: venue,
+    isLoading,
+    isError,
+    error,
+  } = useFetchData(`http://localhost:8080/venues/${venueId}`);
 
   if (isLoading) {
     return (
@@ -38,16 +40,16 @@ export default function VenueDetails() {
       <SectionWrapper>
         <Title>Venue Details</Title>
         <Typography>
-          <strong>Venue ID:</strong> {data.id}
+          <strong>ID:</strong> {venue.id}
         </Typography>
         <Typography>
-          <strong>Name:</strong> {data.name}
+          <strong>Name:</strong> {venue.name}
         </Typography>
         <Typography>
-          <strong>Location:</strong> {data.location}
+          <strong>Location:</strong> {venue.location}
         </Typography>
         <Typography>
-          <strong>Capacity:</strong> {data.capacity}
+          <strong>Capacity:</strong> {venue.capacity}
         </Typography>
       </SectionWrapper>
     </PageContainer>

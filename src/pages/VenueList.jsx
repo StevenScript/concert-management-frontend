@@ -3,10 +3,11 @@ import {
   Typography,
   CircularProgress,
   List,
+  Paper,
   ListItem,
   ListItemText,
-  Paper,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 import useFetchData from "../hooks/useFetchData";
 import {
   PageContainer,
@@ -16,7 +17,7 @@ import {
 
 export default function VenueList() {
   const {
-    data = [],
+    data: venues = [],
     isLoading,
     isError,
     error,
@@ -45,9 +46,14 @@ export default function VenueList() {
       <SectionWrapper>
         <Title>Venues</Title>
         <List>
-          {data.map((v) => (
-            <Paper key={v.id} elevation={2} style={{ marginBottom: "1rem" }}>
-              <ListItem data-testid={`venue-${v.id}`}>
+          {venues.map((v) => (
+            <Paper key={v.id} elevation={2} sx={{ mb: 2 }}>
+              <ListItem
+                button
+                component={Link}
+                to={`/venues/${v.id}`}
+                data-testid={`venue-${v.id}`}
+              >
                 <ListItemText
                   primary={<strong>{v.name}</strong>}
                   secondary={`${v.location} — capacity ${v.capacity}`}

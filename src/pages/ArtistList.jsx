@@ -5,8 +5,14 @@ import {
   List,
   ListItem,
   ListItemText,
+  Paper,
 } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
+import {
+  PageContainer,
+  SectionWrapper,
+  Title,
+} from "../utils/StyledComponents";
 
 export default function ArtistList() {
   const {
@@ -17,34 +23,36 @@ export default function ArtistList() {
   } = useFetchData("http://localhost:8080/artists");
 
   return (
-    <section>
-      {/* Heading is always rendered */}
-      <Typography variant="h4" component="h1">
-        Artists
-      </Typography>
+    <PageContainer>
+      <SectionWrapper>
+        <Title>Artists</Title>
 
-      {/* Inline loading indicator */}
-      {isLoading && <CircularProgress data-testid="loading-indicator" />}
+        {isLoading && <CircularProgress data-testid="loading-indicator" />}
 
-      {/* Inline error message */}
-      {isError && (
-        <Typography color="error" data-testid="error-message">
-          {error.message}
-        </Typography>
-      )}
+        {isError && (
+          <Typography color="error" data-testid="error-message">
+            {error.message}
+          </Typography>
+        )}
 
-      {/* Render list only when not loading or error */}
-      {!isLoading && !isError && Array.isArray(artists) && (
-        <List>
-          {artists.map((artist) => (
-            <ListItem key={artist.id}>
-              <ListItemText
-                primary={artist.stageName || artist.username || artist.name}
-              />
-            </ListItem>
-          ))}
-        </List>
-      )}
-    </section>
+        {!isLoading && !isError && Array.isArray(artists) && (
+          <List>
+            {artists.map((artist) => (
+              <Paper
+                key={artist.id}
+                elevation={2}
+                style={{ marginBottom: "1rem" }}
+              >
+                <ListItem>
+                  <ListItemText
+                    primary={artist.stageName || artist.username || artist.name}
+                  />
+                </ListItem>
+              </Paper>
+            ))}
+          </List>
+        )}
+      </SectionWrapper>
+    </PageContainer>
   );
 }

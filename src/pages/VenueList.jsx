@@ -5,11 +5,16 @@ import {
   List,
   ListItem,
   ListItemText,
+  Paper,
 } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
+import {
+  PageContainer,
+  SectionWrapper,
+  Title,
+} from "../utils/StyledComponents";
 
 export default function VenueList() {
-  // ensure data is always an array
   const {
     data = [],
     isLoading,
@@ -18,32 +23,40 @@ export default function VenueList() {
   } = useFetchData("http://localhost:8080/venues");
 
   if (isLoading) {
-    return <CircularProgress data-testid="loading-indicator" />;
+    return (
+      <PageContainer>
+        <CircularProgress data-testid="loading-indicator" />
+      </PageContainer>
+    );
   }
 
   if (isError) {
     return (
-      <Typography color="error" data-testid="error-message">
-        {error.message}
-      </Typography>
+      <PageContainer>
+        <Typography color="error" data-testid="error-message">
+          {error.message}
+        </Typography>
+      </PageContainer>
     );
   }
 
   return (
-    <section>
-      <Typography variant="h4" component="h1">
-        Venues
-      </Typography>
-      <List>
-        {data.map((v) => (
-          <ListItem key={v.id} data-testid={`venue-${v.id}`}>
-            <ListItemText
-              primary={v.name}
-              secondary={`${v.location} — capacity ${v.capacity}`}
-            />
-          </ListItem>
-        ))}
-      </List>
-    </section>
+    <PageContainer>
+      <SectionWrapper>
+        <Title>Venues</Title>
+        <List>
+          {data.map((v) => (
+            <Paper key={v.id} elevation={2} style={{ marginBottom: "1rem" }}>
+              <ListItem data-testid={`venue-${v.id}`}>
+                <ListItemText
+                  primary={<strong>{v.name}</strong>}
+                  secondary={`${v.location} — capacity ${v.capacity}`}
+                />
+              </ListItem>
+            </Paper>
+          ))}
+        </List>
+      </SectionWrapper>
+    </PageContainer>
   );
 }

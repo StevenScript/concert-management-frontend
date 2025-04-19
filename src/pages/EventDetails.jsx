@@ -8,7 +8,7 @@ export default function EventDetails() {
 
   // Fetch from your real backend; tests will mock axios.get
   const { data, isLoading, isError, error } = useFetchData(
-    `http://localhost:8080/api/events/${eventId}`
+    `http://localhost:8080/events/${eventId}`
   );
 
   if (isLoading) {
@@ -31,7 +31,6 @@ export default function EventDetails() {
       <Typography>Event ID: {data.id}</Typography>
       <Typography>Name: {data.name}</Typography>
       <Typography>Date: {data.event_date}</Typography>
-      {/* add any other fields you need */}
     </section>
   );
 }

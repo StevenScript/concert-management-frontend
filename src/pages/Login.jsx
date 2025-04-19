@@ -1,6 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router"; // you said you’re on react‑router (not dom)
+import { useNavigate, useLocation } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
+import {
+  PageContainer,
+  SectionWrapper,
+  Title,
+  CenteredForm,
+} from "../utils/StyledComponents";
+import { TextField, Button, Alert } from "@mui/material";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -9,7 +16,6 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  // After login, go back to wherever they came from, or home
   const from = location.state?.from?.pathname || "/";
 
   const handleSubmit = async (e) => {
@@ -24,27 +30,31 @@ export default function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Login</h1>
-      <label htmlFor="username-input">
-        Username
-        <input
-          id="username-input"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </label>
-      <label htmlFor="password-input">
-        Password
-        <input
-          id="password-input"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </label>
-      <button type="submit">Login</button>
-      {error && <div role="alert">{error}</div>}
-    </form>
+    <PageContainer>
+      <SectionWrapper>
+        <Title>Login</Title>
+        <CenteredForm onSubmit={handleSubmit}>
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            variant="outlined"
+            type="password"
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Login
+          </Button>
+          {error && <Alert severity="error">{error}</Alert>}
+        </CenteredForm>
+      </SectionWrapper>
+    </PageContainer>
   );
 }

@@ -10,6 +10,7 @@ const StyledForm = styled.form`
   gap: 16px;
   max-width: 400px;
   margin: 0 auto;
+  background-color: #af0000;
 `;
 
 const Form = ({ initialValues, onSubmit, fields, submitLabel }) => {

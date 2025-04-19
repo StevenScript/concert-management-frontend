@@ -5,8 +5,14 @@ import {
   List,
   ListItem,
   ListItemText,
+  Paper,
 } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
+import {
+  PageContainer,
+  SectionWrapper,
+  Title,
+} from "../utils/StyledComponents";
 
 export default function EventList() {
   const {
@@ -17,34 +23,34 @@ export default function EventList() {
   } = useFetchData("http://localhost:8080/events");
 
   return (
-    <section>
-      {/* Heading is always rendered */}
-      <Typography variant="h4" component="h1">
-        Events
-      </Typography>
+    <PageContainer>
+      <SectionWrapper>
+        <Title>Events</Title>
 
-      {/* Inline loading indicator */}
-      {isLoading && <CircularProgress data-testid="loading-indicator" />}
+        {isLoading && <CircularProgress data-testid="loading-indicator" />}
 
-      {/* Inline error message */}
-      {isError && (
-        <Typography color="error" data-testid="error-message">
-          {error.message}
-        </Typography>
-      )}
+        {isError && (
+          <Typography color="error" data-testid="error-message">
+            {error.message}
+          </Typography>
+        )}
 
-      {/* Render list only when not loading or error */}
-      {!isLoading && !isError && Array.isArray(events) && (
-        <List>
-          {events.map((event) => (
-            <ListItem key={event.id}>
-              <ListItemText
-                primary={event.name || `${event.eventDate}`} // adjust to your dto
-              />
-            </ListItem>
-          ))}
-        </List>
-      )}
-    </section>
+        {!isLoading && !isError && Array.isArray(events) && (
+          <List>
+            {events.map((event) => (
+              <Paper
+                key={event.id}
+                elevation={2}
+                style={{ marginBottom: "1rem" }}
+              >
+                <ListItem>
+                  <ListItemText primary={event.name || `${event.eventDate}`} />
+                </ListItem>
+              </Paper>
+            ))}
+          </List>
+        )}
+      </SectionWrapper>
+    </PageContainer>
   );
 }

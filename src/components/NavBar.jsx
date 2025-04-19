@@ -6,12 +6,6 @@ const NavBar = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Concert Management
-        </Typography>
-        <Button color="inherit" component={Link} to="/">
-          Home
-        </Button>
         <Button color="inherit" component={Link} to="/artists">
           Artists
         </Button>
@@ -20,6 +14,24 @@ const NavBar = () => {
         </Button>
         <Button color="inherit" component={Link} to="/venues">
           Venues
+        </Button>
+        <Button color="inherit" component={Link} to="/tickets">
+          Tickets
+        </Button>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Concert Management
+        </Typography>
+        <Button color="inherit" component={Link} to="/">
+          Home
+        </Button>
+        <Button color="inherit" component={Link} to="/register">
+          Sign up!
+        </Button>
+        <Button color="inherit" component={Link} to="/login">
+          Login
+        </Button>
+        <Button color="inherit" component={Link} to="/admin/dashboard">
+          Admin
         </Button>
       </Toolbar>
     </AppBar>

@@ -1,36 +1,55 @@
 import React from "react";
-import { useParams } from "react-router"; // ← same as EventDetails
+import { useParams } from "react-router";
 import { Typography, CircularProgress } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
+import {
+  PageContainer,
+  SectionWrapper,
+  Title,
+} from "../utils/StyledComponents";
 
 export default function VenueDetails() {
   const { venueId } = useParams();
 
   const { data, isLoading, isError, error } = useFetchData(
-    `http://localhost:8080/api/venues/${venueId}`
+    `http://localhost:8080/venues/${venueId}`
   );
 
   if (isLoading) {
-    return <CircularProgress data-testid="loading-indicator" />;
+    return (
+      <PageContainer>
+        <CircularProgress data-testid="loading-indicator" />
+      </PageContainer>
+    );
   }
 
   if (isError) {
     return (
-      <Typography color="error" data-testid="error-message">
-        {error.message}
-      </Typography>
+      <PageContainer>
+        <Typography color="error" data-testid="error-message">
+          {error.message}
+        </Typography>
+      </PageContainer>
     );
   }
 
   return (
-    <section>
-      <Typography variant="h4" component="h1">
-        Venue Details
-      </Typography>
-      <Typography>Venue ID: {data.id}</Typography>
-      <Typography>Name: {data.name}</Typography>
-      <Typography>Location: {data.location}</Typography>
-      <Typography>Capacity: {data.capacity}</Typography>
-    </section>
+    <PageContainer>
+      <SectionWrapper>
+        <Title>Venue Details</Title>
+        <Typography>
+          <strong>ID:</strong> {data.id}
+        </Typography>
+        <Typography>
+          <strong>Name:</strong> {data.name}
+        </Typography>
+        <Typography>
+          <strong>Location:</strong> {data.location}
+        </Typography>
+        <Typography>
+          <strong>Capacity:</strong> {data.capacity}
+        </Typography>
+      </SectionWrapper>
+    </PageContainer>
   );
 }

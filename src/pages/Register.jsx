@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
+import {
+  PageContainer,
+  SectionWrapper,
+  Title,
+  CenteredForm,
+} from "../utils/StyledComponents";
+import { TextField, Button } from "@mui/material";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -16,36 +23,38 @@ function Register() {
   };
 
   return (
-    <section>
-      <h1>Register</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="username">Username</label>
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button type="submit">Sign Up</button>
-      </form>
-    </section>
+    <PageContainer>
+      <SectionWrapper>
+        <Title>Register</Title>
+        <CenteredForm onSubmit={handleSubmit}>
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Sign Up
+          </Button>
+        </CenteredForm>
+      </SectionWrapper>
+    </PageContainer>
   );
 }
 

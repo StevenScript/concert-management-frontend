@@ -19,7 +19,7 @@ export const updateArtist = (id, artistData) =>
 export const fetchEventsForArtist = (artistId) =>
   api.get(`/artists/${artistId}/events`).then((r) => r.data);
 
-// (optional) Fetch ticket‑count for artist
+// Fetch ticket‑count for artist
 export const fetchTicketCountForArtist = (artistId) =>
   api.get(`/artists/${artistId}/ticket-count`).then((r) => r.data);
 

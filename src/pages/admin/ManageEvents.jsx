@@ -12,7 +12,7 @@ import useFetchData from "../../hooks/useFetchData";
 
 export default function ManageEvents() {
   const { data, isLoading, isError, error } = useFetchData(
-    "http://example.com/api/events"
+    "http://localhost:8080/api/events"
   );
 
   if (isLoading) {

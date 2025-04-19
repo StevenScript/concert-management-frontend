@@ -12,7 +12,7 @@ import useFetchData from "../../hooks/useFetchData";
 
 export default function ManageTickets() {
   const { data, isLoading, isError, error } = useFetchData(
-    "http://example.com/api/tickets"
+    "http://localhost:8080/api/tickets"
   );
 
   if (isLoading) {

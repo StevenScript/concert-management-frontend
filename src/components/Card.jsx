@@ -14,8 +14,6 @@ import styled from "styled-components";
 const StyledCard = styled(MuiCard)`
   max-width: 345px;
   margin: 16px;
-  color: #af0000;
-}
 `;
 
 const Card = ({ image, title, description, onActionClick, actionLabel }) => {

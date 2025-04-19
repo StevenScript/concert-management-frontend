@@ -36,7 +36,7 @@ export default function ArtistDetails() {
   if (loadingArtist) {
     return (
       <PageContainer>
-        <CircularProgress />
+        <CircularProgress data-testid="loading-indicator" />
       </PageContainer>
     );
   }
@@ -44,7 +44,9 @@ export default function ArtistDetails() {
   if (artistError) {
     return (
       <PageContainer>
-        <Typography color="error">{artistErr.message}</Typography>
+        <Typography color="error" data-testid="error-message">
+          {artistErr.message}
+        </Typography>
       </PageContainer>
     );
   }
@@ -55,16 +57,17 @@ export default function ArtistDetails() {
         <Title>Artist Details</Title>
 
         <Typography>
-          <strong>Name:</strong> {artist.stageName}
+          <strong>Name:</strong> {artist.stageName || artist.name}
         </Typography>
         <Typography>
           <strong>Genre:</strong> {artist.genre}
         </Typography>
         <Typography>
-          <strong>Home City:</strong> {artist.homeCity}
+          <strong>Home City:</strong> {artist.homeCity || artist.home_city}
         </Typography>
         <Typography>
-          <strong>Members:</strong> {artist.membersCount}
+          <strong>Members:</strong>{" "}
+          {artist.membersCount ?? artist.members_count}
         </Typography>
 
         <Divider style={{ margin: "1rem 0" }} />
@@ -73,15 +76,16 @@ export default function ArtistDetails() {
         {loadingEvents ? (
           <CircularProgress size={24} />
         ) : (
-          <List>
-            {events?.map((e) => (
-              <ListItem key={e.id}>
-                <ListItemText
-                  primary={new Date(e.eventDate).toLocaleDateString()}
-                  secondary={`Tickets: ${e.availableTickets}`}
-                />
-              </ListItem>
-            ))}
+          <List data-testid="events-list">
+            {Array.isArray(events) &&
+              events.map((e) => (
+                <ListItem key={e.id}>
+                  <ListItemText
+                    primary={new Date(e.eventDate).toLocaleDateString()}
+                    secondary={`Tickets: ${e.availableTickets}`}
+                  />
+                </ListItem>
+              ))}
           </List>
         )}
 
@@ -91,12 +95,13 @@ export default function ArtistDetails() {
         {loadingVenues ? (
           <CircularProgress size={24} />
         ) : (
-          <List>
-            {venues?.map((v) => (
-              <ListItem key={v.id}>
-                <ListItemText primary={v.name} secondary={v.location} />
-              </ListItem>
-            ))}
+          <List data-testid="venues-list">
+            {Array.isArray(venues) &&
+              venues.map((v) => (
+                <ListItem key={v.id}>
+                  <ListItemText primary={v.name} secondary={v.location} />
+                </ListItem>
+              ))}
           </List>
         )}
       </SectionWrapper>

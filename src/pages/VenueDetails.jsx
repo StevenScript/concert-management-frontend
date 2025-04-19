@@ -38,7 +38,7 @@ export default function VenueDetails() {
       <SectionWrapper>
         <Title>Venue Details</Title>
         <Typography>
-          <strong>ID:</strong> {data.id}
+          <strong>Venue ID:</strong> {data.id}
         </Typography>
         <Typography>
           <strong>Name:</strong> {data.name}

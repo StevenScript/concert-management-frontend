@@ -1,40 +1,48 @@
 import React from "react";
-import { Typography, CircularProgress, List, ListItem } from "@mui/material";
+import {
+  Typography,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
 
-function EventList() {
+export default function EventList() {
+  // default events to [] so events.map can't fail
   const {
-    data: events,
+    data: events = [],
     isLoading,
     isError,
     error,
-  } = useFetchData("http://localhost:8080/api/events");
+  } = useFetchData("http://localhost:8080/events");
+
+  if (isLoading) {
+    return <CircularProgress data-testid="loading-indicator" />;
+  }
+  if (isError) {
+    return (
+      <Typography variant="body1" color="error" data-testid="error-message">
+        {error.message}
+      </Typography>
+    );
+  }
 
   return (
     <section>
       <Typography variant="h4" component="h1">
         Events
       </Typography>
-
-      {isLoading && <CircularProgress data-testid="loading-indicator" />}
-
-      {isError && (
-        <Typography variant="body1" color="error" data-testid="error-message">
-          {error.message}
-        </Typography>
-      )}
-
-      {events && (
-        <List>
-          {events.map((e) => (
-            <ListItem key={e.id}>
-              <Typography>{e.name}</Typography>
-            </ListItem>
-          ))}
-        </List>
-      )}
+      <List>
+        {events.map((e) => (
+          <ListItem key={e.id} data-testid={`event-${e.id}`}>
+            <ListItemText
+              primary={e.eventDate}
+              secondary={`$${e.ticketPrice} — ${e.availableTickets} tickets left`}
+            />
+          </ListItem>
+        ))}
+      </List>
     </section>
   );
 }
-
-export default EventList;

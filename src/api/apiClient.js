@@ -33,7 +33,7 @@ if (
     try {
       token = localStorage.getItem("authToken");
     } catch {
-      // no localStorage in Jest
+      // no localStorage in Jest or non-browser environments
     }
     if (token) {
       config.headers = config.headers || {};

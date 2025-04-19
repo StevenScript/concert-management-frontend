@@ -41,7 +41,7 @@ function AppRoutes() {
       <Route
         path="/admin/dashboard"
         element={
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute requiredRole="ADMIN">
             <AdminDashboard />
           </ProtectedRoute>
         }
@@ -49,7 +49,7 @@ function AppRoutes() {
       <Route
         path="/admin/artists"
         element={
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute requiredRole="ADMIN">
             <ManageArtists />
           </ProtectedRoute>
         }
@@ -57,7 +57,7 @@ function AppRoutes() {
       <Route
         path="/admin/events"
         element={
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute requiredRole="ADMIN">
             <ManageEvents />
           </ProtectedRoute>
         }
@@ -65,7 +65,7 @@ function AppRoutes() {
       <Route
         path="/admin/venues"
         element={
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute requiredRole="ADMIN">
             <ManageVenues />
           </ProtectedRoute>
         }
@@ -73,7 +73,7 @@ function AppRoutes() {
       <Route
         path="/admin/tickets"
         element={
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute requiredRole="ADMIN">
             <ManageTickets />
           </ProtectedRoute>
         }

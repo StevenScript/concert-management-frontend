@@ -9,9 +9,13 @@ import {
 import useFetchData from "../hooks/useFetchData";
 
 export default function VenueList() {
-  const { data, isLoading, isError, error } = useFetchData(
-    "http://localhost:8080/api/venues"
-  );
+  // ensure data is always an array
+  const {
+    data = [],
+    isLoading,
+    isError,
+    error,
+  } = useFetchData("http://localhost:8080/venues");
 
   if (isLoading) {
     return <CircularProgress data-testid="loading-indicator" />;
@@ -33,7 +37,10 @@ export default function VenueList() {
       <List>
         {data.map((v) => (
           <ListItem key={v.id} data-testid={`venue-${v.id}`}>
-            <ListItemText primary={v.name} />
+            <ListItemText
+              primary={v.name}
+              secondary={`${v.location} — capacity ${v.capacity}`}
+            />
           </ListItem>
         ))}
       </List>

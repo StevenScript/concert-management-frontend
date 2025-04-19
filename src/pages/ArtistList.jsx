@@ -1,41 +1,48 @@
 import React from "react";
-import { Typography, CircularProgress, List, ListItem } from "@mui/material";
+import {
+  Typography,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
 
-function ArtistList() {
+export default function ArtistList() {
+  // default artists to [] so artists.map can't fail
   const {
-    data: artists,
+    data: artists = [],
     isLoading,
     isError,
     error,
-  } = useFetchData("http://localhost:8080/api/artists");
+  } = useFetchData("http://localhost:8080/artists");
+
+  if (isLoading) {
+    return <CircularProgress data-testid="loading-indicator" />;
+  }
+  if (isError) {
+    return (
+      <Typography variant="body1" color="error" data-testid="error-message">
+        {error.message}
+      </Typography>
+    );
+  }
 
   return (
     <section>
-      {/* this H1 is always rendered */}
       <Typography variant="h4" component="h1">
         Artists
       </Typography>
-
-      {isLoading && <CircularProgress data-testid="loading-indicator" />}
-
-      {isError && (
-        <Typography variant="body1" color="error" data-testid="error-message">
-          {error.message}
-        </Typography>
-      )}
-
-      {artists && (
-        <List>
-          {artists.map((a) => (
-            <ListItem key={a.id}>
-              <Typography>{a.name}</Typography>
-            </ListItem>
-          ))}
-        </List>
-      )}
+      <List>
+        {artists.map((a) => (
+          <ListItem key={a.id} data-testid={`artist-${a.id}`}>
+            <ListItemText
+              primary={a.stageName}
+              secondary={`${a.genre} — ${a.membersCount} member(s) from ${a.homeCity}`}
+            />
+          </ListItem>
+        ))}
+      </List>
     </section>
   );
 }
-
-export default ArtistList;

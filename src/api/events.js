@@ -1,49 +1,36 @@
-import axios from "axios";
-
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+import api from "./apiClient";
 
 // Fetch all events.
-export const fetchEvents = async () => {
-  const response = await axios.get(`${BASE_URL}/events`);
-  return response.data;
-};
+export const fetchEvents = () => api.get("/events").then((r) => r.data);
+
+// Fetch upcoming events.
+export const fetchUpcomingEvents = () =>
+  api.get("/events/upcoming").then((r) => r.data);
 
 // Fetch a single event by ID.
-export const fetchEventById = async (id) => {
-  const response = await axios.get(`${BASE_URL}/events/${id}`);
-  return response.data;
-};
+export const fetchEventById = (id) =>
+  api.get(`/events/${id}`).then((r) => r.data);
 
 // Create a new event.
-export const createEvent = async (eventData) => {
-  const response = await axios.post(`${BASE_URL}/events`, eventData);
-  return response.data;
-};
+export const createEvent = (eventData) =>
+  api.post("/events", eventData).then((r) => r.data);
 
 // Update an existing event.
-export const updateEvent = async (id, eventData) => {
-  const response = await axios.put(`${BASE_URL}/events/${id}`, eventData);
-  return response.data;
-};
+export const updateEvent = (id, eventData) =>
+  api.put(`/events/${id}`, eventData).then((r) => r.data);
 
 // Add an artist to an event.
-export const addArtistToEvent = async (eventId, artistId) => {
-  const response = await axios.post(
-    `${BASE_URL}/events/${eventId}/artists/${artistId}`
-  );
-  return response.data;
-};
+export const addArtistToEvent = (eventId, artistId) =>
+  api.post(`/events/${eventId}/artists/${artistId}`).then((r) => r.data);
 
 // Fetch tickets for a specific event.
-export const fetchTicketsForEvent = async (eventId) => {
-  const response = await axios.get(`${BASE_URL}/events/${eventId}/tickets`);
-  return response.data;
-};
+export const fetchTicketsForEvent = (eventId) =>
+  api.get(`/events/${eventId}/tickets`).then((r) => r.data);
 
 // Fetch the total number of tickets for a specific event.
-export const fetchTicketCountForEvent = async (eventId) => {
-  const response = await axios.get(
-    `${BASE_URL}/events/${eventId}/ticket-count`
-  );
-  return response.data;
-};
+export const fetchTicketCountForEvent = (eventId) =>
+  api.get(`/events/${eventId}/ticket-count`).then((r) => r.data);
+
+// (optional) Fetch events by artist
+export const fetchEventsByArtist = (artistId) =>
+  api.get(`/events/artist/${artistId}`).then((r) => r.data);

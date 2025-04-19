@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation } from "react-router"; // you said you’re on react‑router (not dom)
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Login() {
@@ -9,6 +9,7 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  // After login, go back to wherever they came from, or home
   const from = location.state?.from?.pathname || "/";
 
   const handleSubmit = async (e) => {
@@ -25,19 +26,19 @@ export default function Login() {
   return (
     <form onSubmit={handleSubmit}>
       <h1>Login</h1>
-      <label>
+      <label htmlFor="username-input">
         Username
         <input
-          aria-label="username"
+          id="username-input"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
       </label>
-      <label>
+      <label htmlFor="password-input">
         Password
         <input
+          id="password-input"
           type="password"
-          aria-label="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />

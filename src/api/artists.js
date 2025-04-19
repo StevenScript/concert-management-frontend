@@ -1,34 +1,28 @@
-import axios from "axios";
-
-// Base URL is read from an environment variable with a default fallback.
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+import api from "./apiClient";
 
 // Fetch all artists.
-export const fetchArtists = async () => {
-  const response = await axios.get(`${BASE_URL}/artists`);
-  return response.data;
-};
+export const fetchArtists = () => api.get("/artists").then((r) => r.data);
 
 // Fetch a single artist by ID.
-export const fetchArtistById = async (id) => {
-  const response = await axios.get(`${BASE_URL}/artists/${id}`);
-  return response.data;
-};
+export const fetchArtistById = (id) =>
+  api.get(`/artists/${id}`).then((r) => r.data);
 
 // Create a new artist.
-export const createArtist = async (artistData) => {
-  const response = await axios.post(`${BASE_URL}/artists`, artistData);
-  return response.data;
-};
+export const createArtist = (artistData) =>
+  api.post("/artists", artistData).then((r) => r.data);
 
 // Update an existing artist.
-export const updateArtist = async (id, artistData) => {
-  const response = await axios.put(`${BASE_URL}/artists/${id}`, artistData);
-  return response.data;
-};
+export const updateArtist = (id, artistData) =>
+  api.put(`/artists/${id}`, artistData).then((r) => r.data);
 
 // Fetch events for a specific artist.
-export const fetchEventsForArtist = async (artistId) => {
-  const response = await axios.get(`${BASE_URL}/artists/${artistId}/events`);
-  return response.data;
-};
+export const fetchEventsForArtist = (artistId) =>
+  api.get(`/artists/${artistId}/events`).then((r) => r.data);
+
+// (optional) Fetch ticket‑count for artist
+export const fetchTicketCountForArtist = (artistId) =>
+  api.get(`/artists/${artistId}/ticket-count`).then((r) => r.data);
+
+// Fetch venues where artist plays
+export const fetchVenuesForArtist = (artistId) =>
+  api.get(`/artists/${artistId}/venues`).then((r) => r.data);

@@ -4,24 +4,24 @@ const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
 let api;
 
-// Try to get a real axios instance…
+// Create an Axios instance with the base URL, falling back to default if creation fails
 if (typeof axios.create === "function") {
   try {
     const instance = axios.create({ baseURL: BASE_URL });
-    api = instance || axios; // fall back if create() returned undefined
+    api = instance || axios;
   } catch {
-    api = axios; // fall back if create throws
+    api = axios;
   }
 } else {
-  api = axios; // no create() support, use default
+  api = axios;
 }
 
-// Ensure we never read `defaults` off of an undefined `api`
+// Ensure baseURL is set even on the default instance
 if (api && api.defaults) {
   api.defaults.baseURL = BASE_URL;
 }
 
-// Safely wire up an Authorization interceptor
+// Attach an Authorization header to each request when a token is present
 if (
   api &&
   api.interceptors &&
@@ -33,7 +33,7 @@ if (
     try {
       token = localStorage.getItem("authToken");
     } catch {
-      // no localStorage in Jest or non-browser environments
+      // localStorage may be unavailable (e.g. in tests)
     }
     if (token) {
       config.headers = config.headers || {};

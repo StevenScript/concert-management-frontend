@@ -13,6 +13,9 @@ const Title = styled.h1`
   font-size: 2rem;
 `;
 
+/**
+ * Top-level header displaying the application title.
+ */
 const Header = () => {
   return (
     <HeaderContainer data-testid="header">

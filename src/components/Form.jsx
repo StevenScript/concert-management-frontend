@@ -13,6 +13,9 @@ const StyledForm = styled.form`
   background-color: #af0000;
 `;
 
+/**
+ * Generic form component mapping fields to inputs and handling submission.
+ */
 const Form = ({ initialValues, onSubmit, fields, submitLabel }) => {
   const [values, setValues] = useState(initialValues);
 

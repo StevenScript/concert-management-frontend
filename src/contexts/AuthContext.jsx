@@ -4,12 +4,17 @@ import api from "../api/apiClient"; // ← still use your axios instance for the
 
 const AuthContext = createContext();
 
+/**
+ * Provides authentication state and methods (login, register, logout)
+ * to the component tree.
+ */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
 
+  // Sync Axios default Authorization header with current user token
   useEffect(() => {
     if (user?.token) {
       api.defaults.headers.common.Authorization = `Bearer ${user.token}`;
@@ -18,27 +23,47 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
+  /**
+   * Save user to state and localStorage.
+   * @param {Object} u - User object containing token and profile data
+   */
   const saveUser = (u) => {
     setUser(u);
     localStorage.setItem("user", JSON.stringify(u));
   };
 
+  /**
+   * Clear user from state and localStorage, and remove auth header.
+   */
   const clearUser = () => {
     setUser(null);
     localStorage.removeItem("user");
     delete api.defaults.headers.common.Authorization;
   };
 
+  /**
+   * Authenticate the user via API and store credentials.
+   * Uses axios for mocking in tests.
+   *
+   * @param {string} username
+   * @param {string} password
+   */
   const login = async (username, password) => {
-    // ← use axios.post so your tests' `jest.mock("axios")` kicks in
     const { data } = await axios.post("/api/login", { username, password });
-    // data may be { user: {...}, token } or { username, role, token }
     const userObj = data.user
       ? { ...data.user, token: data.token }
       : { username: data.username, role: data.role, token: data.token };
     saveUser(userObj);
   };
 
+  /**
+   * Register a new user via API and store credentials.
+   *
+   * @param {string} username
+   * @param {string} email
+   * @param {string} password
+   * @param {string} role
+   */
   const register = async (username, email, password, role) => {
     const { data } = await axios.post("/api/register", {
       username,
@@ -59,6 +84,10 @@ export function AuthProvider({ children }) {
   );
 }
 
+/**
+ * Custom hook to access authentication context.
+ * @returns {Object} { user, login, register, logout }
+ */
 export function useAuth() {
   return useContext(AuthContext);
 }

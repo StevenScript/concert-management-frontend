@@ -11,6 +11,9 @@ const FooterContainer = styled.footer`
   bottom: 0;
 `;
 
+/**
+ * Persistent footer showing copyright.
+ */
 const Footer = () => {
   return (
     <FooterContainer data-testid="footer">

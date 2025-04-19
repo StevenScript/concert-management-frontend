@@ -10,7 +10,11 @@ import {
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-// Create a styled version of the Material-UI Card with some custom margins and max-width
+/**
+ * A reusable content card displaying an optional image, title,
+ * description, and an optional action button.
+ */
+
 const StyledCard = styled(MuiCard)`
   max-width: 345px;
   margin: 16px;

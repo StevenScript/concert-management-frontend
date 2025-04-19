@@ -1,7 +1,10 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
-import { Link } from "react-router"; // <-- Changed from "react-router" to "react-router-dom"
+import { Link } from "react-router";
 
+/**
+ * Main navigation bar with links to primary sections.
+ */
 const NavBar = () => {
   return (
     <AppBar position="static">

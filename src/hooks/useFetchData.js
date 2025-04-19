@@ -7,7 +7,7 @@ const fetchData = async (url) => {
   return response.data;
 };
 
-// Custom hook with the "object syntax" introduced in React Query v5.
+// Custom hook with the "object syntax"
 const useFetchData = (url, options = {}) => {
   return useQuery({
     queryKey: [url],

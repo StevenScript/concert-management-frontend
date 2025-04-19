@@ -31,6 +31,4 @@ describe("AppRoutes", () => {
     const artistHeading = screen.getByRole("heading", { name: /artists/i });
     expect(artistHeading).toBeInTheDocument();
   });
-
-  // … you can add more route tests here …
 });

@@ -1,7 +1,7 @@
 ## This is the unfinished front end meant to work with:
 -https://github.com/StevenScript/concertManagement_Server
 
-## Concert Management Backend
+## Concert Management Frontend
 
 ## **Author:** Steven Norris  
 ## **Date:** April 19, 2025

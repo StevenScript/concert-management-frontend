@@ -7,7 +7,7 @@ export default function VenueDetails() {
   const { venueId } = useParams();
 
   const { data, isLoading, isError, error } = useFetchData(
-    `http://example.com/api/venues/${venueId}`
+    `http://localhost:8080/api/venues/${venueId}`
   );
 
   if (isLoading) {

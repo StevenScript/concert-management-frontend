@@ -8,7 +8,7 @@ function ArtistDetails() {
 
   // Call our custom hook to fetch artist details. Make sure your endpoint URL reflects your backend.
   const { data, isLoading, isError, error } = useFetchData(
-    `http://example.com/api/artists/${artistId}`
+    `http://localhost:8080/api/artists/${artistId}`
   );
 
   if (isLoading) {

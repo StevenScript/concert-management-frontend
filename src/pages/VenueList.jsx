@@ -10,7 +10,7 @@ import useFetchData from "../hooks/useFetchData";
 
 export default function VenueList() {
   const { data, isLoading, isError, error } = useFetchData(
-    "http://example.com/api/venues"
+    "http://localhost:8080/api/venues"
   );
 
   if (isLoading) {

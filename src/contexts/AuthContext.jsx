@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
   };
 
   const login = async (username, password) => {
-    const { data } = await axios.post("http://your-backend/api/login", {
+    const { data } = await axios.post("http://localhost:8080/api/login", {
       username,
       password,
     });
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (username, password) => {
-    const { data } = await axios.post("http://your-backend/api/register", {
+    const { data } = await axios.post("http://localhost:8080/api/register", {
       username,
       password,
     });

@@ -8,7 +8,7 @@ function EventList() {
     isLoading,
     isError,
     error,
-  } = useFetchData("http://example.com/api/events");
+  } = useFetchData("http://localhost:8080/api/events");
 
   return (
     <section>

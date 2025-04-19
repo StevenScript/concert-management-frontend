@@ -8,7 +8,7 @@ function ArtistList() {
     isLoading,
     isError,
     error,
-  } = useFetchData("http://example.com/api/artists");
+  } = useFetchData("http://localhost:8080/api/artists");
 
   return (
     <section>

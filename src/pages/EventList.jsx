@@ -1,12 +1,13 @@
 import React from "react";
 import {
-  Typography,
-  CircularProgress,
   List,
   ListItem,
   ListItemText,
   Paper,
+  CircularProgress,
+  Typography,
 } from "@mui/material";
+import { Link } from "react-router";
 import useFetchData from "../hooks/useFetchData";
 import {
   PageContainer,
@@ -20,31 +21,41 @@ export default function EventList() {
     isLoading,
     isError,
     error,
-  } = useFetchData("http://localhost:8080/events");
+    refetch,
+  } = useFetchData("http://localhost:8080/events/upcoming"); // ← backend already returns soonest→latest
 
   return (
     <PageContainer>
       <SectionWrapper>
-        <Title>Events</Title>
+        <Title>Upcoming Events</Title>
 
         {isLoading && <CircularProgress data-testid="loading-indicator" />}
-
         {isError && (
           <Typography color="error" data-testid="error-message">
-            {error.message}
+            {error.message} &nbsp;
+            <span onClick={refetch} style={{ cursor: "pointer" }}>
+              (retry)
+            </span>
           </Typography>
         )}
 
         {!isLoading && !isError && Array.isArray(events) && (
           <List>
-            {events.map((event) => (
-              <Paper
-                key={event.id}
-                elevation={2}
-                style={{ marginBottom: "1rem" }}
-              >
-                <ListItem>
-                  <ListItemText primary={event.name || `${event.eventDate}`} />
+            {events.map((e) => (
+              <Paper key={e.id} elevation={2} sx={{ mb: 2 }}>
+                <ListItem
+                  component={Link}
+                  to={`/events/${e.id}`}
+                  sx={{ textDecoration: "none" }}
+                >
+                  <ListItemText
+                    primary={e.name}
+                    secondary={`${new Intl.DateTimeFormat("en-CA").format(
+                      new Date(e.eventDate)
+                    )}  •  $${e.ticketPrice.toFixed(2)}  •  ${
+                      e.availableTickets
+                    } left`}
+                  />
                 </ListItem>
               </Paper>
             ))}

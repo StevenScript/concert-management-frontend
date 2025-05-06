@@ -31,6 +31,9 @@ export const fetchTicketsForEvent = (eventId) =>
 export const fetchTicketCountForEvent = (eventId) =>
   api.get(`/events/${eventId}/ticket-count`).then((r) => r.data);
 
+export const deleteEvent = (id) =>
+  api.delete(`/events/${id}`).then((r) => r.status); // returns 204
+
 // (optional) Fetch events by artist
 export const fetchEventsByArtist = (artistId) =>
   api.get(`/events/artist/${artistId}`).then((r) => r.data);

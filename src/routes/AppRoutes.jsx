@@ -12,6 +12,8 @@ import VenueDetails from "../pages/VenueDetails";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 
+import TicketList from "../pages/TicketList";
+
 // Admin Pages
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import ManageArtists from "../pages/admin/ManageArtists";
@@ -36,6 +38,16 @@ function AppRoutes() {
       {/* Auth-Related */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+
+      {/*Profile Related */}
+      <Route
+        path="/tickets"
+        element={
+          <ProtectedRoute>
+            <TicketList />
+          </ProtectedRoute>
+        }
+      />
 
       {/* ---------------- ADMIN ROUTES ---------------- */}
       <Route

@@ -20,6 +20,7 @@ import ManageArtists from "../pages/admin/ManageArtists";
 import ManageEvents from "../pages/admin/ManageEvents";
 import ManageVenues from "../pages/admin/ManageVenues";
 import ManageTickets from "../pages/admin/ManageTickets";
+import ManageUsers from "../pages/admin/ManageUsers";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -87,6 +88,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute requiredRole="ADMIN">
             <ManageTickets />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute requiredRole="ADMIN">
+            <ManageUsers />
           </ProtectedRoute>
         }
       />

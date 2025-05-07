@@ -12,6 +12,16 @@ export const fetchMyTickets = (email) =>
  * Purchase ticket(s) for the given event.
  * backend infers user if buyerEmail is omitted.
  * @param {{ eventId: number, buyerEmail?: string }} payload
+ *
  */
 export const createTicket = (payload) =>
   api.post("/tickets", payload).then((r) => r.data);
+
+/** Admin: fetch every ticket in the system */
+export const fetchAllTickets = () => api.get("/tickets").then((r) => r.data);
+
+export const deleteTicket = (id) =>
+  api.delete(`/tickets/${id}`).then((r) => r.status);
+
+export const updateTicket = (id, data) =>
+  api.put(`/tickets/${id}`, data).then((r) => r.data);

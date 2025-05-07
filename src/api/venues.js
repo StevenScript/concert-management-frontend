@@ -22,3 +22,6 @@ export const fetchArtistsForVenue = (venueId) =>
 // Fetch upcoming events for a venue.
 export const fetchUpcomingEventsForVenue = (venueId) =>
   api.get(`/venues/${venueId}/upcoming-events`).then((r) => r.data);
+
+export const deleteVenue = (id) =>
+  api.delete(`/venues/${id}`).then((r) => r.status);

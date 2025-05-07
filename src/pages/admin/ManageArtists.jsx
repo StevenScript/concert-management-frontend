@@ -10,9 +10,14 @@ import {
   TextField,
   Button,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import useFetchData from "../../hooks/useFetchData";
-import { createArtist, updateArtist } from "../../api/artists";
+import { createArtist, updateArtist, deleteArtist } from "../../api/artists";
 
 export default function ManageArtists() {
   const {
@@ -23,6 +28,7 @@ export default function ManageArtists() {
     refetch,
   } = useFetchData("http://localhost:8080/artists");
 
+  /* ---------- form state ---------- */
   const [form, setForm] = useState({
     stageName: "",
     genre: "",
@@ -31,12 +37,26 @@ export default function ManageArtists() {
   });
   const [editingId, setEditingId] = useState(null);
 
+  /* ---------- delete dialog ---------- */
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const confirmDelete = async () => {
+    await deleteArtist(deleteTarget.id);
+    setDeleteTarget(null);
+    refetch();
+  };
+
+  /* ---------- handlers ---------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({
       ...f,
       [name]: name === "membersCount" ? Number(value) : value,
     }));
+  };
+
+  const resetForm = () => {
+    setForm({ stageName: "", genre: "", homeCity: "", membersCount: 1 });
+    setEditingId(null);
   };
 
   const handleSubmit = async (e) => {
@@ -46,8 +66,7 @@ export default function ManageArtists() {
     } else {
       await createArtist(form);
     }
-    setForm({ stageName: "", genre: "", homeCity: "", membersCount: 1 });
-    setEditingId(null);
+    resetForm();
     refetch();
   };
 
@@ -61,86 +80,125 @@ export default function ManageArtists() {
     });
   };
 
-  if (isLoading) {
-    return <CircularProgress data-testid="loading-indicator" />;
-  }
-  if (isError) {
+  /* ---------- loading / error ---------- */
+  if (isLoading) return <CircularProgress data-testid="loading-indicator" />;
+  if (isError)
     return (
       <Typography color="error" data-testid="error-message">
         {error.message}
       </Typography>
     );
-  }
 
+  /* ---------- render ---------- */
   return (
-    <Paper style={{ padding: "1rem" }}>
-      <Typography variant="h4" gutterBottom>
-        Manage Artists
-      </Typography>
-      <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
-        <TextField
-          label="Stage Name"
-          name="stageName"
-          value={form.stageName}
-          onChange={handleChange}
-          required
-          style={{ marginRight: "1rem" }}
-        />
-        <TextField
-          label="Genre"
-          name="genre"
-          value={form.genre}
-          onChange={handleChange}
-          required
-          style={{ marginRight: "1rem" }}
-        />
-        <TextField
-          label="Home City"
-          name="homeCity"
-          value={form.homeCity}
-          onChange={handleChange}
-          required
-          style={{ marginRight: "1rem" }}
-        />
-        <TextField
-          label="Members Count"
-          name="membersCount"
-          type="number"
-          value={form.membersCount}
-          onChange={handleChange}
-          required
-          style={{ width: "120px", marginRight: "1rem" }}
-        />
-        <Button type="submit" variant="contained" color="primary">
-          {editingId ? "Update Artist" : "Create Artist"}
-        </Button>
-      </form>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Genre</TableCell>
-            <TableCell>Home City</TableCell>
-            <TableCell>Members</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {artists.map((artist) => (
-            <TableRow key={artist.id} data-testid={`artist-${artist.id}`}>
-              <TableCell>{artist.stageName}</TableCell>
-              <TableCell>{artist.genre}</TableCell>
-              <TableCell>{artist.homeCity}</TableCell>
-              <TableCell>{artist.membersCount}</TableCell>
-              <TableCell>
-                <Button size="small" onClick={() => startEdit(artist)}>
-                  Edit
-                </Button>
-              </TableCell>
+    <>
+      <Paper sx={{ p: 2 }}>
+        <Typography variant="h4" gutterBottom>
+          Manage Artists
+        </Typography>
+
+        {/* ---- form ---- */}
+        <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
+          <TextField
+            label="Stage Name"
+            name="stageName"
+            value={form.stageName}
+            onChange={handleChange}
+            required
+            sx={{ mr: 2 }}
+          />
+          <TextField
+            label="Genre"
+            name="genre"
+            value={form.genre}
+            onChange={handleChange}
+            required
+            sx={{ mr: 2 }}
+          />
+          <TextField
+            label="Home City"
+            name="homeCity"
+            value={form.homeCity}
+            onChange={handleChange}
+            required
+            sx={{ mr: 2 }}
+          />
+          <TextField
+            label="Members"
+            name="membersCount"
+            type="number"
+            value={form.membersCount}
+            onChange={handleChange}
+            required
+            sx={{ width: 120, mr: 2 }}
+          />
+          <Button type="submit" variant="contained">
+            {editingId ? "Update Artist" : "Create Artist"}
+          </Button>
+          {editingId && (
+            <Button onClick={resetForm} sx={{ ml: 1 }}>
+              Cancel
+            </Button>
+          )}
+        </form>
+
+        {/* ---- table ---- */}
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Genre</TableCell>
+              <TableCell>Home City</TableCell>
+              <TableCell>Members</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Paper>
+          </TableHead>
+          <TableBody>
+            {artists.map((a) => (
+              <TableRow key={a.id} data-testid={`artist-${a.id}`}>
+                <TableCell>{a.stageName}</TableCell>
+                <TableCell>{a.genre}</TableCell>
+                <TableCell>{a.homeCity}</TableCell>
+                <TableCell>{a.membersCount}</TableCell>
+                <TableCell>
+                  <Button size="small" onClick={() => startEdit(a)}>
+                    Edit
+                  </Button>
+                  <Button
+                    size="small"
+                    color="error"
+                    onClick={() => setDeleteTarget(a)}
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
+
+      {/* ---- delete dialog ---- */}
+      {deleteTarget && (
+        <Dialog
+          open
+          onClose={() => setDeleteTarget(null)}
+          aria-labelledby="delete-artist-dialog"
+        >
+          <DialogTitle id="delete-artist-dialog">Delete Artist</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Delete artist “{deleteTarget.stageName}”?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button color="error" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+    </>
   );
 }

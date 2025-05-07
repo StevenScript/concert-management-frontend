@@ -11,8 +11,18 @@ import {
   Button,
   Box,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
-import { fetchVenues, createVenue, updateVenue } from "../../api/venues";
+import {
+  fetchVenues,
+  createVenue,
+  updateVenue,
+  deleteVenue,
+} from "../../api/venues";
 import {
   PageContainer,
   SectionWrapper,
@@ -36,7 +46,9 @@ export default function ManageVenues() {
     capacity: "",
   });
 
-  // Load all venues
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  /* ---------- data ---------- */
   const loadVenues = async () => {
     try {
       setLoading(true);
@@ -48,12 +60,11 @@ export default function ManageVenues() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     loadVenues();
   }, []);
 
-  // Create handler
+  /* ---------- create ---------- */
   const handleCreate = async () => {
     try {
       const created = await createVenue({
@@ -68,17 +79,15 @@ export default function ManageVenues() {
     }
   };
 
-  // Kick off editing a given row
-  const startEdit = (venue) => {
-    setEditId(venue.id);
+  /* ---------- edit ---------- */
+  const startEdit = (v) => {
+    setEditId(v.id);
     setEditData({
-      name: venue.name,
-      location: venue.location,
-      capacity: venue.capacity.toString(),
+      name: v.name,
+      location: v.location,
+      capacity: v.capacity.toString(),
     });
   };
-
-  // Save update
   const handleUpdate = async (id) => {
     try {
       const updated = await updateVenue(id, {
@@ -93,6 +102,14 @@ export default function ManageVenues() {
     }
   };
 
+  /* ---------- delete ---------- */
+  const confirmDelete = async () => {
+    await deleteVenue(deleteTarget.id);
+    setDeleteTarget(null);
+    loadVenues();
+  };
+
+  /* ---------- ui ---------- */
   if (loading) return <CircularProgress data-testid="loading-indicator" />;
   if (error) return <Typography color="error">{error.message}</Typography>;
 
@@ -101,7 +118,7 @@ export default function ManageVenues() {
       <SectionWrapper>
         <Title>Manage Venues</Title>
 
-        {/* New Venue Form */}
+        {/* ---- create form ---- */}
         <Paper sx={{ p: 2, mb: 4 }}>
           <Typography variant="h6">Add New Venue</Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 1 }}>
@@ -133,14 +150,14 @@ export default function ManageVenues() {
           </Box>
         </Paper>
 
-        {/* Venues Table */}
+        {/* ---- table ---- */}
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Location</TableCell>
               <TableCell>Capacity</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -190,15 +207,24 @@ export default function ManageVenues() {
                 </TableCell>
 
                 {/* Actions */}
-                <TableCell align="right">
+                <TableCell>
                   {editId === v.id ? (
                     <Button size="small" onClick={() => handleUpdate(v.id)}>
                       Save
                     </Button>
                   ) : (
-                    <Button size="small" onClick={() => startEdit(v)}>
-                      Edit
-                    </Button>
+                    <>
+                      <Button size="small" onClick={() => startEdit(v)}>
+                        Edit
+                      </Button>
+                      <Button
+                        size="small"
+                        color="error"
+                        onClick={() => setDeleteTarget(v)}
+                      >
+                        Delete
+                      </Button>
+                    </>
                   )}
                 </TableCell>
               </TableRow>
@@ -206,6 +232,28 @@ export default function ManageVenues() {
           </TableBody>
         </Table>
       </SectionWrapper>
+
+      {/* ---- delete dialog ---- */}
+      {deleteTarget && (
+        <Dialog
+          open
+          onClose={() => setDeleteTarget(null)}
+          aria-labelledby="delete-venue-dialog"
+        >
+          <DialogTitle id="delete-venue-dialog">Delete Venue</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Delete venue “{deleteTarget.name}”?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button color="error" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </PageContainer>
   );
 }

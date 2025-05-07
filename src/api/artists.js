@@ -26,3 +26,6 @@ export const fetchTicketCountForArtist = (artistId) =>
 // Fetch venues where artist plays
 export const fetchVenuesForArtist = (artistId) =>
   api.get(`/artists/${artistId}/venues`).then((r) => r.data);
+
+export const deleteArtist = (id) =>
+  api.delete(`/artists/${id}`).then((r) => r.status);

@@ -1,20 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios"; // ← use axios here for login/register
-import api from "../api/apiClient"; // ← still use your axios instance for the rest
+import axios from "axios"; // used only for login/register hits
+import api from "../api/apiClient"; // configured axios instance for the rest
 
 const AuthContext = createContext();
 
-/**
- * Provides authentication state and methods (login, register, logout)
- * to the component tree.
- */
+/** Provides authentication state and auth helpers to the tree. */
 export function AuthProvider({ children }) {
+  /* ---------- state ---------- */
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Sync Axios default Authorization header with current user token
+  /* ---------- sync Authorization header ---------- */
   useEffect(() => {
     if (user?.token) {
       api.defaults.headers.common.Authorization = `Bearer ${user.token}`;
@@ -23,50 +21,36 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  /**
-   * Save user to state and localStorage.
-   * @param {Object} u - User object containing token and profile data
-   */
+  /* ---------- helpers ---------- */
   const saveUser = (u) => {
     setUser(u);
     localStorage.setItem("user", JSON.stringify(u));
   };
 
-  /**
-   * Clear user from state and localStorage, and remove auth header.
-   */
   const clearUser = () => {
     setUser(null);
     localStorage.removeItem("user");
     delete api.defaults.headers.common.Authorization;
   };
 
-  /**
-   * Authenticate the user via API and store credentials.
-   * Uses axios for mocking in tests.
-   *
-   * @param {string} username
-   * @param {string} password
-   */
+  /* ---------- login ---------- */
   const login = async (username, password) => {
     const { data } = await axios.post("http://localhost:8080/api/login", {
       username,
       password,
     });
-    const userObj = data.user
-      ? { ...data.user, token: data.token }
-      : { username: data.username, role: data.role, token: data.token };
+
+    // data = { username, email, role, token }
+    const userObj = {
+      username: data.username,
+      email: data.email,
+      role: data.role,
+      token: data.token,
+    };
     saveUser(userObj);
   };
 
-  /**
-   * Register a new user via API and store credentials.
-   *
-   * @param {string} username
-   * @param {string} email
-   * @param {string} password
-   * @param {string} role
-   */
+  /* ---------- register ---------- */
   const register = async (username, email, password, role) => {
     const { data } = await axios.post("http://localhost:8080/api/register", {
       username,
@@ -74,12 +58,18 @@ export function AuthProvider({ children }) {
       password,
       role,
     });
-    const userObj = data.user
-      ? { ...data.user, token: data.token }
-      : { username: data.username, role: data.role, token: data.token };
+
+    // data = { username, email, role, token }
+    const userObj = {
+      username: data.username,
+      email: data.email,
+      role: data.role,
+      token: data.token,
+    };
     saveUser(userObj);
   };
 
+  /* ---------- context ---------- */
   return (
     <AuthContext.Provider value={{ user, login, register, logout: clearUser }}>
       {children}
@@ -87,10 +77,7 @@ export function AuthProvider({ children }) {
   );
 }
 
-/**
- * Custom hook to access authentication context.
- * @returns {Object} { user, login, register, logout }
- */
+/** Hook to access { user, login, register, logout } */
 export function useAuth() {
   return useContext(AuthContext);
 }

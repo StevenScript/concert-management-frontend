@@ -44,6 +44,14 @@ function AdminDashboard() {
         >
           Manage Tickets
         </Button>
+
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => navigate("/admin/users")}
+        >
+          Manage Users
+        </Button>
       </Stack>
     </section>
   );

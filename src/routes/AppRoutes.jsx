@@ -11,6 +11,7 @@ import VenueList from "../pages/VenueList";
 import VenueDetails from "../pages/VenueDetails";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import Account from "../pages/Account";
 
 import TicketList from "../pages/TicketList";
 
@@ -41,6 +42,16 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
 
       {/*Profile Related */}
+
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute>
+            <Account />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/tickets"
         element={

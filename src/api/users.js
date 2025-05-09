@@ -11,6 +11,9 @@ export const createUser = (data) =>
 export const updateUser = (id, data) =>
   api.put(`/users/${id}`, data).then((r) => r.data);
 
+export const updateUserSelf = (id, payload) =>
+  api.put(`/users/${id}`, payload).then((r) => r.data);
+
 /* ----- delete ----- */
 export const deleteUser = (id) =>
   api.delete(`/users/${id}`).then((r) => r.status);

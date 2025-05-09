@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Typography,
   CircularProgress,
@@ -9,11 +9,13 @@ import {
   TableCell,
   TableBody,
   Stack,
+  TextField,
   Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import useFetchData from "../hooks/useFetchData";
+import { updateUserSelf } from "../api/users";
 import {
   PageContainer,
   SectionWrapper,
@@ -26,6 +28,7 @@ export default function Account() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  /* ---- tickets query ---- */
   const {
     data: tickets,
     isLoading,
@@ -33,60 +36,115 @@ export default function Account() {
     error,
   } = useFetchData(`${API}/tickets/buyer/${encodeURIComponent(user.email)}`);
 
-  /* ---------- loading / error ---------- */
+  /* ---- edit mode state ---- */
+  const [edit, setEdit] = useState(false);
+  const [form, setForm] = useState({
+    username: user.username,
+    email: user.email,
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const saveChanges = async () => {
+    const payload = { ...form };
+    if (!payload.password) delete payload.password; // ignore empty pwd
+    await updateUserSelf(user.id, payload);
+    // force logout – a real app would refresh token instead
+    logout();
+    navigate("/login");
+  };
+
+  /* ---- guards ---- */
   if (isLoading) {
     return (
       <PageContainer>
-        <CircularProgress data-testid="loading-indicator" />
+        <CircularProgress />
       </PageContainer>
     );
   }
   if (isError) {
     return (
       <PageContainer>
-        <Typography color="error" data-testid="error-message">
-          {error.message}
-        </Typography>
+        <Typography color="error">{error.message}</Typography>
       </PageContainer>
     );
   }
 
-  /* ---------- render ---------- */
+  /* ---- render ---- */
   return (
     <PageContainer>
       <SectionWrapper>
         <Title>My Account</Title>
 
         <Paper sx={{ p: 2, mb: 4 }}>
-          <Stack spacing={1}>
-            <Typography>
-              <strong>Username:</strong> {user.username}
-            </Typography>
-            <Typography>
-              <strong>Email:</strong> {user.email}
-            </Typography>
-            <Typography>
-              <strong>Role:</strong> {user.role}
-            </Typography>
-            <Button
-              variant="outlined"
-              color="error"
-              sx={{ mt: 1, alignSelf: "flex-start" }}
-              onClick={() => {
-                logout();
-                navigate("/login");
-              }}
-            >
-              Logout
-            </Button>
-          </Stack>
+          {edit ? (
+            <Stack spacing={2}>
+              <TextField
+                label="Username"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
+              />
+              <TextField
+                label="Email"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+              />
+              <TextField
+                label="New Password"
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+              />
+              <Stack direction="row" spacing={2}>
+                <Button variant="contained" onClick={saveChanges}>
+                  Save
+                </Button>
+                <Button onClick={() => setEdit(false)}>Cancel</Button>
+              </Stack>
+            </Stack>
+          ) : (
+            <Stack spacing={1}>
+              <Typography>
+                <strong>Username:</strong> {user.username}
+              </Typography>
+              <Typography>
+                <strong>Email:</strong> {user.email}
+              </Typography>
+              <Typography>
+                <strong>Role:</strong> {user.role}
+              </Typography>
+              <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                <Button variant="outlined" onClick={() => setEdit(true)}>
+                  Edit Info
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => {
+                    logout();
+                    navigate("/login");
+                  }}
+                >
+                  Logout
+                </Button>
+              </Stack>
+            </Stack>
+          )}
         </Paper>
 
+        {/* ---- tickets ---- */}
         <Paper sx={{ p: 2 }}>
           <Typography variant="h6" gutterBottom>
             My Tickets
           </Typography>
-
           {tickets.length === 0 ? (
             <Typography>
               You haven&rsquo;t purchased any tickets yet.

@@ -42,6 +42,7 @@ export function AuthProvider({ children }) {
 
     // data = { username, email, role, token }
     const userObj = {
+      id: data.id,
       username: data.username,
       email: data.email,
       role: data.role,
@@ -53,6 +54,7 @@ export function AuthProvider({ children }) {
   /* ---------- register ---------- */
   const register = async (username, email, password, role) => {
     const { data } = await axios.post("http://localhost:8080/api/register", {
+      id: data.id,
       username,
       email,
       password,
@@ -61,6 +63,7 @@ export function AuthProvider({ children }) {
 
     // data = { username, email, role, token }
     const userObj = {
+      id: data.id,
       username: data.username,
       email: data.email,
       role: data.role,

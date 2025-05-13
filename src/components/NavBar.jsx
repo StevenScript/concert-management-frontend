@@ -1,11 +1,19 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, Stack } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Stack,
+  Badge,
+} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-
+import { useCart } from "../contexts/CartContext";
 export default function NavBar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { items } = useCart();
 
   /* Helper: case-insensitive role check */
   const isAdmin = user?.role && user.role.toUpperCase().includes("ADMIN");
@@ -52,6 +60,14 @@ export default function NavBar() {
                 Login
               </Button>
             </>
+          )}
+
+          {user && (
+            <Button color="inherit" component={Link} to="/checkout">
+              <Badge badgeContent={items.length} color="secondary">
+                Cart
+              </Badge>
+            </Button>
           )}
 
           {user && (

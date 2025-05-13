@@ -2,6 +2,7 @@ import React from "react";
 import { useParams } from "react-router";
 import { Typography, CircularProgress, Button, Stack } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
+import { useCart } from "../contexts/CartContext"; // ← NEW
 import {
   PageContainer,
   SectionWrapper,
@@ -10,6 +11,7 @@ import {
 
 export default function EventDetails() {
   const { eventId } = useParams();
+  const { addItem } = useCart(); // ← NEW
 
   /* -------- primary event fetch -------- */
   const {
@@ -26,7 +28,7 @@ export default function EventDetails() {
     refetch: refetchCount,
   } = useFetchData(`http://localhost:8080/events/${eventId}/ticket-count`);
 
-  /* -------- loading / error states (same layout as VenueDetails) -------- */
+  /* -------- loading / error gates -------- */
   if (isLoading) {
     return (
       <PageContainer>
@@ -52,6 +54,7 @@ export default function EventDetails() {
     dateStyle: "long",
   }).format(new Date(event.eventDate));
 
+  /* -------- render -------- */
   return (
     <PageContainer>
       <SectionWrapper>
@@ -78,15 +81,24 @@ export default function EventDetails() {
           </Typography>
         )}
 
-        {/* ---- placeholder; purchase flow next slice ---- */}
+        {/* -------- action buttons -------- */}
         <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
           <Button
             variant="contained"
             disabled={ticketsLeft === 0}
-            onClick={refetchCount} // temporary refresh
+            onClick={() =>
+              addItem({
+                id: event.id,
+                name: event.name,
+                date: event.eventDate,
+                venueName: event.venueName,
+                price: event.ticketPrice,
+              })
+            }
           >
-            {ticketsLeft === 0 ? "Sold Out" : "Buy Ticket"}
+            {ticketsLeft === 0 ? "Sold Out" : "Add to Cart"}
           </Button>
+
           <Button
             variant="outlined"
             onClick={refetchCount}

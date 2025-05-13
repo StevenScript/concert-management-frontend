@@ -12,6 +12,7 @@ import VenueDetails from "../pages/VenueDetails";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Account from "../pages/Account";
+import Checkout from "../pages/Checkout";
 
 import TicketList from "../pages/TicketList";
 
@@ -62,6 +63,16 @@ function AppRoutes() {
       />
 
       {/* ---------------- ADMIN ROUTES ---------------- */}
+
+      <Route
+        path="/checkout"
+        element={
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/admin/dashboard"
         element={

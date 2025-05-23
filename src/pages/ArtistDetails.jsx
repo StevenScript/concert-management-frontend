@@ -15,24 +15,27 @@ import {
   Title,
 } from "../utils/StyledComponents";
 
+const API = "http://localhost:8080";
+
 export default function ArtistDetails() {
   const { artistId } = useParams();
 
+  /* ---------- artist ---------- */
   const {
     data: artist,
     isLoading: loadingArtist,
     isError: artistError,
     error: artistErr,
-  } = useFetchData(`http://localhost:8080/artists/${artistId}`);
+  } = useFetchData(`${API}/artists/${artistId}`);
 
-  const { data: events, isLoading: loadingEvents } = useFetchData(
-    `http://localhost:8080/artists/${artistId}/events`
-  );
+  /* ---------- events ---------- */
+  const {
+    data: events = [],
+    isLoading: loadingEvents,
+    isError: eventsError,
+  } = useFetchData(`${API}/artists/${artistId}/events`);
 
-  const { data: venues, isLoading: loadingVenues } = useFetchData(
-    `http://localhost:8080/artists/${artistId}/venues`
-  );
-
+  /* ---------- guards ---------- */
   if (loadingArtist) {
     return (
       <PageContainer>
@@ -41,16 +44,30 @@ export default function ArtistDetails() {
     );
   }
 
-  if (artistError) {
+  if (artistError || eventsError) {
+    const msg = artistErr?.message || "Failed to load data";
     return (
       <PageContainer>
         <Typography color="error" data-testid="error-message">
-          {artistErr.message}
+          {msg}
         </Typography>
       </PageContainer>
     );
   }
 
+  /* ---------- derive unique venues directly from events ---------- */
+  const venues = events
+    .map((e) => e.venue)
+    .filter((v) => v) // remove nulls
+    .reduce((acc, v) => {
+      if (!acc.some((x) => x.id === v.id)) acc.push(v);
+      return acc;
+    }, []);
+
+  const fmtDate = (iso) =>
+    new Intl.DateTimeFormat("en-CA").format(new Date(iso));
+
+  /* ---------- render ---------- */
   return (
     <PageContainer>
       <SectionWrapper>
@@ -63,45 +80,51 @@ export default function ArtistDetails() {
           <strong>Genre:</strong> {artist.genre}
         </Typography>
         <Typography>
-          <strong>Home City:</strong> {artist.homeCity || artist.home_city}
+          <strong>Home City:</strong> {artist.homeCity ?? artist.home_city}
         </Typography>
         <Typography>
           <strong>Members:</strong>{" "}
           {artist.membersCount ?? artist.members_count}
         </Typography>
 
-        <Divider style={{ margin: "1rem 0" }} />
+        <Divider sx={{ my: 2 }} />
 
+        {/* ---- events ---- */}
         <Typography variant="h6">Upcoming Events</Typography>
         {loadingEvents ? (
           <CircularProgress size={24} />
+        ) : events.length === 0 ? (
+          <Typography>No upcoming events.</Typography>
         ) : (
           <List data-testid="events-list">
-            {Array.isArray(events) &&
-              events.map((e) => (
-                <ListItem key={e.id}>
-                  <ListItemText
-                    primary={new Date(e.eventDate).toLocaleDateString()}
-                    secondary={`Tickets: ${e.availableTickets}`}
-                  />
-                </ListItem>
-              ))}
+            {events.map((e) => (
+              <ListItem key={e.id}>
+                <ListItemText
+                  primary={e.name ?? `Event #${e.id}`}
+                  secondary={`${fmtDate(e.eventDate)} — Tickets left: ${
+                    e.availableTickets ?? "N/A"
+                  }`}
+                />
+              </ListItem>
+            ))}
           </List>
         )}
 
-        <Divider style={{ margin: "1rem 0" }} />
+        <Divider sx={{ my: 2 }} />
 
+        {/* ---- venues ---- */}
         <Typography variant="h6">Venues</Typography>
-        {loadingVenues ? (
+        {loadingEvents ? (
           <CircularProgress size={24} />
+        ) : venues.length === 0 ? (
+          <Typography>No venues linked yet.</Typography>
         ) : (
           <List data-testid="venues-list">
-            {Array.isArray(venues) &&
-              venues.map((v) => (
-                <ListItem key={v.id}>
-                  <ListItemText primary={v.name} secondary={v.location} />
-                </ListItem>
-              ))}
+            {venues.map((v) => (
+              <ListItem key={v.id}>
+                <ListItemText primary={v.name} secondary={v.location} />
+              </ListItem>
+            ))}
           </List>
         )}
       </SectionWrapper>

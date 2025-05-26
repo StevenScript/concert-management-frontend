@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import {
   Typography,
@@ -35,6 +35,29 @@ export default function ArtistDetails() {
     isError: eventsError,
   } = useFetchData(`${API}/artists/${artistId}/events`);
 
+  /* ---------- tickets-left map {eventId: left} ---------- */
+  const [leftMap, setLeftMap] = useState({});
+  const [loadingLeft, setLoadingLeft] = useState(true);
+
+  useEffect(() => {
+    if (events.length === 0) {
+      setLoadingLeft(false);
+      return;
+    }
+    const fetchAll = async () => {
+      const entries = await Promise.all(
+        events.map(async (e) => {
+          const res = await fetch(`${API}/events/${e.id}/tickets-left`);
+          const left = await res.json();
+          return [e.id, left];
+        })
+      );
+      setLeftMap(Object.fromEntries(entries));
+      setLoadingLeft(false);
+    };
+    fetchAll();
+  }, [events]);
+
   /* ---------- guards ---------- */
   if (loadingArtist) {
     return (
@@ -55,10 +78,10 @@ export default function ArtistDetails() {
     );
   }
 
-  /* ---------- derive unique venues directly from events ---------- */
+  /* ---------- derive unique venues ---------- */
   const venues = events
     .map((e) => e.venue)
-    .filter((v) => v) // remove nulls
+    .filter(Boolean)
     .reduce((acc, v) => {
       if (!acc.some((x) => x.id === v.id)) acc.push(v);
       return acc;
@@ -91,7 +114,7 @@ export default function ArtistDetails() {
 
         {/* ---- events ---- */}
         <Typography variant="h6">Upcoming Events</Typography>
-        {loadingEvents ? (
+        {loadingEvents || loadingLeft ? (
           <CircularProgress size={24} />
         ) : events.length === 0 ? (
           <Typography>No upcoming events.</Typography>
@@ -102,7 +125,7 @@ export default function ArtistDetails() {
                 <ListItemText
                   primary={e.name ?? `Event #${e.id}`}
                   secondary={`${fmtDate(e.eventDate)} — Tickets left: ${
-                    e.availableTickets ?? "N/A"
+                    leftMap[e.id] ?? "N/A"
                   }`}
                 />
               </ListItem>

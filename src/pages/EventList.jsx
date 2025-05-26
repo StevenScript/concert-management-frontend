@@ -52,9 +52,9 @@ export default function EventList() {
                     primary={e.name}
                     secondary={`${new Intl.DateTimeFormat("en-CA").format(
                       new Date(e.eventDate)
-                    )}  •  $${e.ticketPrice.toFixed(2)}  •  ${
+                    )}  •  $${e.ticketPrice.toFixed(2)} Per Ticket •  ${
                       e.availableTickets
-                    } left`}
+                    } Tickets`}
                   />
                 </ListItem>
               </Paper>

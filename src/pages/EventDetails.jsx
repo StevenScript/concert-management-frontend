@@ -1,34 +1,72 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { Typography, CircularProgress, Button, Stack } from "@mui/material";
+import {
+  Typography,
+  CircularProgress,
+  Button,
+  Stack,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+} from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
-import { useCart } from "../contexts/CartContext"; // ← NEW
+import { useCart } from "../contexts/CartContext";
 import {
   PageContainer,
   SectionWrapper,
   Title,
 } from "../utils/StyledComponents";
 
+const API = "http://localhost:8080";
+
 export default function EventDetails() {
   const { eventId } = useParams();
-  const { addItem } = useCart(); // ← NEW
+  const { addItem } = useCart();
 
-  /* -------- primary event fetch -------- */
+  /* ---------- primary event ---------- */
   const {
     data: event,
     isLoading,
     isError,
     error,
-  } = useFetchData(`http://localhost:8080/events/${eventId}`);
+  } = useFetchData(`${API}/events/${eventId}`);
 
-  /* -------- live ticket count -------- */
+  /* ---------- tickets left ---------- */
   const {
-    data: liveCount,
-    isLoading: countLoading,
-    refetch: refetchCount,
-  } = useFetchData(`http://localhost:8080/events/${eventId}/ticket-count`);
+    data: ticketsLeft,
+    isLoading: loadingLeft,
+    refetch: refetchLeft,
+  } = useFetchData(`${API}/events/${eventId}/tickets-left`);
 
-  /* -------- loading / error gates -------- */
+  /* ---------- venue ---------- */
+  const { data: venue, isLoading: loadingVenue } = useFetchData(
+    event ? `${API}/venues/${event.venueId}` : null,
+    {
+      enabled: !!event,
+    }
+  );
+
+  /* ---------- artists ---------- */
+  const [artists, setArtists] = useState([]);
+  const [loadingArtists, setLoadingArtists] = useState(true);
+
+  useEffect(() => {
+    if (!event) return;
+    const fetchArtists = async () => {
+      const list = await Promise.all(
+        event.artistIds.map(async (id) => {
+          const res = await fetch(`${API}/artists/${id}`);
+          return res.json();
+        })
+      );
+      setArtists(list);
+      setLoadingArtists(false);
+    };
+    fetchArtists();
+  }, [event]);
+
+  /* ---------- guards ---------- */
   if (isLoading) {
     return (
       <PageContainer>
@@ -47,22 +85,21 @@ export default function EventDetails() {
     );
   }
 
-  /* -------- helper values -------- */
-  const ticketsLeft =
-    typeof liveCount === "number" ? liveCount : event.availableTickets;
+  /* ---------- helpers ---------- */
+  const ticketsRemaining =
+    typeof ticketsLeft === "number" ? ticketsLeft : event.availableTickets;
+
   const eventDateFmt = new Intl.DateTimeFormat("en-CA", {
     dateStyle: "long",
   }).format(new Date(event.eventDate));
 
-  /* -------- render -------- */
+  /* ---------- render ---------- */
   return (
     <PageContainer>
       <SectionWrapper>
         <Title>Event Details</Title>
 
-        <Typography>
-          <strong>ID:</strong> {event.id}
-        </Typography>
+        {/* --- basic info --- */}
         <Typography>
           <strong>Name:</strong> {event.name}
         </Typography>
@@ -73,36 +110,72 @@ export default function EventDetails() {
           <strong>Price:</strong> ${event.ticketPrice.toFixed(2)}
         </Typography>
 
-        {countLoading ? (
+        {/* --- tickets left --- */}
+        {loadingLeft ? (
           <CircularProgress size={18} sx={{ mt: 1 }} />
         ) : (
           <Typography sx={{ mt: 1 }}>
-            <strong>Tickets left:</strong> {ticketsLeft}
+            <strong>Tickets left:</strong> {ticketsRemaining}
           </Typography>
         )}
 
-        {/* -------- action buttons -------- */}
+        <Divider sx={{ my: 2 }} />
+
+        {/* --- venue info --- */}
+        <Typography variant="h6">Venue</Typography>
+        {loadingVenue ? (
+          <CircularProgress size={20} />
+        ) : venue ? (
+          <>
+            <Typography>{venue.name}</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {venue.location}
+            </Typography>
+          </>
+        ) : (
+          <Typography>N/A</Typography>
+        )}
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* --- artists list --- */}
+        <Typography variant="h6">Artists</Typography>
+        {loadingArtists ? (
+          <CircularProgress size={20} />
+        ) : artists.length === 0 ? (
+          <Typography>No artists listed.</Typography>
+        ) : (
+          <List dense>
+            {artists.map((a) => (
+              <ListItem key={a.id}>
+                <ListItemText primary={a.stageName} secondary={a.genre} />
+              </ListItem>
+            ))}
+          </List>
+        )}
+
+        {/* --- actions --- */}
         <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
           <Button
             variant="contained"
-            disabled={ticketsLeft === 0}
+            disabled={ticketsRemaining === 0}
             onClick={() =>
               addItem({
                 id: event.id,
                 name: event.name,
                 date: event.eventDate,
-                venueName: event.venueName,
+                venueName: venue?.name ?? "",
                 price: event.ticketPrice,
               })
             }
           >
-            {ticketsLeft === 0 ? "Sold Out" : "Add to Cart"}
+            {ticketsRemaining === 0 ? "Sold Out" : "Add to Cart"}
           </Button>
 
           <Button
             variant="outlined"
-            onClick={refetchCount}
-            disabled={countLoading}
+            onClick={refetchLeft}
+            disabled={loadingLeft}
           >
             Refresh Count
           </Button>

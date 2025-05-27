@@ -10,6 +10,7 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import { AuthProvider } from "./contexts/AuthContext";
 import theme from "./theme";
 import { CartProvider } from "./contexts/CartContext";
+import { ColorModeProvider } from "./contexts/ColorModeContext";
 
 const queryClient = new QueryClient();
 
@@ -18,11 +19,13 @@ root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
-        <AuthProvider>
-          <CartProvider>
-            <App />
-          </CartProvider>
-        </AuthProvider>
+        <ColorModeProvider>
+          <AuthProvider>
+            <CartProvider>
+              <App />
+            </CartProvider>
+          </AuthProvider>
+        </ColorModeProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>

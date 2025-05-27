@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 const HeaderContainer = styled.header`
-  background-color: rgb(73, 13, 33);
+  background-color: rgb(60, 12, 148);
   color: white;
   padding: 1rem;
   text-align: center;

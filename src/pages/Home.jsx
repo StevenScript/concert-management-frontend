@@ -1,11 +1,15 @@
 import React from "react";
+import HeroSection from "../components/HeroSection";
+import HeroBanner from "../components/HeroBanner";
 
 function Home() {
   return (
-    <main>
-      <h1>Welcome to the Concert Site</h1>
-      <p>Discover upcoming events, artists, and more!</p>
-    </main>
+    <>
+      <HeroBanner />
+      <HeroSection />
+
+      {/* the rest of your home content or cards */}
+    </>
   );
 }
 

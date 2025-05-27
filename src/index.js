@@ -3,8 +3,12 @@ import ReactDOM from "react-dom/client";
 import "./styles.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { AuthProvider } from "./contexts/AuthContext";
+
+/* ---- providers ---- */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { AuthProvider } from "./contexts/AuthContext";
+import theme from "./theme";
 import { CartProvider } from "./contexts/CartContext";
 
 const queryClient = new QueryClient();
@@ -13,11 +17,13 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CartProvider>
-          <App />
-        </CartProvider>
-      </AuthProvider>
+      <ThemeProvider theme={theme}>
+        <AuthProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );

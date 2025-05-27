@@ -7,6 +7,7 @@ import {
   ListItem,
   ListItemText,
   Paper,
+  Grid,
 } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
 import {
@@ -14,6 +15,7 @@ import {
   SectionWrapper,
   Title,
 } from "../utils/StyledComponents";
+import ArtistCard from "../components/cards/ArtistCard";
 
 export default function ArtistList() {
   const {
@@ -37,15 +39,13 @@ export default function ArtistList() {
         )}
 
         {!isLoading && !isError && Array.isArray(artists) && (
-          <List>
-            {artists.map((artist) => (
-              <Paper key={artist.id} elevation={2} style={{ margin: "1rem 0" }}>
-                <ListItem button component={Link} to={`/artists/${artist.id}`}>
-                  <ListItemText primary={artist.stageName || artist.name} />
-                </ListItem>
-              </Paper>
+          <Grid container spacing={3}>
+            {artists.map((a) => (
+              <Grid key={a.id} item xs={12} sm={6} md={4}>
+                <ArtistCard artist={a} />
+              </Grid>
             ))}
-          </List>
+          </Grid>
         )}
       </SectionWrapper>
     </PageContainer>

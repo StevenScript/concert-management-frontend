@@ -1,28 +1,27 @@
 import React from "react";
-import {
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
-import { Link } from "react-router";
+import { Typography, CircularProgress, Grid, Alert } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
+import EventCard from "../components/cards/EventCard";
 import {
   PageContainer,
   SectionWrapper,
   Title,
 } from "../utils/StyledComponents";
 
+const API = "http://localhost:8080";
+
 export default function EventList() {
   const {
-    data: events,
+    data: events = [],
     isLoading,
     isError,
     error,
-    refetch,
-  } = useFetchData("http://localhost:8080/events/upcoming"); // ← backend already returns soonest→latest
+  } = useFetchData(`${API}/events/upcoming`); // already sorted by date
+
+  /* optional: preload venue map so we can show names */
+  const { data: venues = [] } = useFetchData(`${API}/venues`);
+
+  const venueMap = Object.fromEntries(venues.map((v) => [v.id, v.name]));
 
   return (
     <PageContainer>
@@ -30,36 +29,17 @@ export default function EventList() {
         <Title>Upcoming Events</Title>
 
         {isLoading && <CircularProgress data-testid="loading-indicator" />}
-        {isError && (
-          <Typography color="error" data-testid="error-message">
-            {error.message} &nbsp;
-            <span onClick={refetch} style={{ cursor: "pointer" }}>
-              (retry)
-            </span>
-          </Typography>
-        )}
 
-        {!isLoading && !isError && Array.isArray(events) && (
-          <List>
-            {events.map((e) => (
-              <Paper key={e.id} elevation={2} sx={{ mb: 2 }}>
-                <ListItem
-                  component={Link}
-                  to={`/events/${e.id}`}
-                  sx={{ textDecoration: "none" }}
-                >
-                  <ListItemText
-                    primary={e.name}
-                    secondary={`${new Intl.DateTimeFormat("en-CA").format(
-                      new Date(e.eventDate)
-                    )}  •  $${e.ticketPrice.toFixed(2)} Per Ticket •  ${
-                      e.availableTickets
-                    } Tickets`}
-                  />
-                </ListItem>
-              </Paper>
+        {isError && <Alert severity="error">{error.message}</Alert>}
+
+        {!isLoading && !isError && (
+          <Grid container spacing={3}>
+            {events.map((ev) => (
+              <Grid key={ev.id} item xs={12} sm={6} md={4}>
+                <EventCard event={ev} venueName={venueMap[ev.venueId]} />
+              </Grid>
             ))}
-          </List>
+          </Grid>
         )}
       </SectionWrapper>
     </PageContainer>

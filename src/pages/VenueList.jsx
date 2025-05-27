@@ -6,6 +6,7 @@ import {
   Paper,
   ListItem,
   ListItemText,
+  Grid,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import useFetchData from "../hooks/useFetchData";
@@ -14,6 +15,7 @@ import {
   SectionWrapper,
   Title,
 } from "../utils/StyledComponents";
+import VenueCard from "../components/cards/VenueCard";
 
 export default function VenueList() {
   const {
@@ -45,23 +47,13 @@ export default function VenueList() {
     <PageContainer>
       <SectionWrapper>
         <Title>Venues</Title>
-        <List>
-          {venues.map((v) => (
-            <Paper key={v.id} elevation={2} sx={{ mb: 2 }}>
-              <ListItem
-                button
-                component={Link}
-                to={`/venues/${v.id}`}
-                data-testid={`venue-${v.id}`}
-              >
-                <ListItemText
-                  primary={<strong>{v.name}</strong>}
-                  secondary={`${v.location} — capacity ${v.capacity}`}
-                />
-              </ListItem>
-            </Paper>
+        <Grid container spacing={3}>
+          {venues.map((a) => (
+            <Grid key={a.id} item xs={12} sm={6} md={4}>
+              <VenueCard venue={a} />
+            </Grid>
           ))}
-        </List>
+        </Grid>
       </SectionWrapper>
     </PageContainer>
   );

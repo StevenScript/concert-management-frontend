@@ -1,5 +1,11 @@
 import React from "react";
-import { Typography, CircularProgress, Grid, Alert } from "@mui/material";
+import {
+  Typography,
+  CircularProgress,
+  Alert,
+  Box,
+  Container,
+} from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
 import EventCard from "../components/cards/EventCard";
 import {
@@ -11,16 +17,16 @@ import {
 const API = "http://localhost:8080";
 
 export default function EventList() {
+  /* ---- upcoming events (already date-sorted by backend) ---- */
   const {
     data: events = [],
     isLoading,
     isError,
     error,
-  } = useFetchData(`${API}/events/upcoming`); // already sorted by date
+  } = useFetchData(`${API}/events/upcoming`);
 
-  /* optional: preload venue map so we can show names */
+  /* ---- venue map for nicer labels ---- */
   const { data: venues = [] } = useFetchData(`${API}/venues`);
-
   const venueMap = Object.fromEntries(venues.map((v) => [v.id, v.name]));
 
   return (
@@ -33,13 +39,28 @@ export default function EventList() {
         {isError && <Alert severity="error">{error.message}</Alert>}
 
         {!isLoading && !isError && (
-          <Grid container spacing={3}>
-            {events.map((ev) => (
-              <Grid key={ev.id} item xs={12} sm={6} md={4}>
-                <EventCard event={ev} venueName={venueMap[ev.venueId]} />
-              </Grid>
-            ))}
-          </Grid>
+          <Container sx={{ maxWidth: 1600, px: { xs: 1, md: 0 }, mx: "auto" }}>
+            <Box
+              sx={{
+                display: "grid",
+                gap: { xs: 2, md: 3 },
+                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              }}
+            >
+              {events.map((ev) => (
+                <EventCard
+                  key={ev.id}
+                  event={ev}
+                  venueName={venueMap[ev.venueId]}
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                />
+              ))}
+            </Box>
+          </Container>
         )}
       </SectionWrapper>
     </PageContainer>

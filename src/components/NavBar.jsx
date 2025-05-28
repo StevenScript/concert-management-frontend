@@ -9,6 +9,7 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
+import HomeIcon from "@mui/icons-material/Home";
 import DarkModeIcon from "@mui/icons-material/Brightness4";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { Link, useNavigate } from "react-router-dom";
@@ -23,16 +24,15 @@ export default function NavBar() {
   const navigate = useNavigate();
   const { mode, toggleColorMode } = useColorMode();
 
-  /* Helper: case-insensitive role check */
+  /* role helper */
   const isAdmin =
     user?.role && user.role.toString().toUpperCase().includes("ADMIN");
 
-  /* Dynamic colours for *this* bar */
-  const bg =
+  /* dynamic background */
+  const appBarBg =
     mode === "light"
-      ? "rgba(255,255,255,.8)" // frosted white
-      : "rgba(15,23,42,.72)"; // frosted slate-900
-  const divider = mode === "light" ? "divider" : "rgba(255,255,255,.08)";
+      ? "rgba(175, 49, 224, 0.9)" // violet-500 glass
+      : "rgba(15,23,42,.82)"; // slate-900 glass
 
   return (
     <AppBar
@@ -40,17 +40,27 @@ export default function NavBar() {
       elevation={0}
       sx={{
         backdropFilter: "blur(10px)",
-        backgroundColor:
-          mode === "light" ? "rgba(175, 49, 224, 0.9)" : "rgba(15,23,42,.82)",
+        backgroundColor: appBarBg,
         borderBottom: "1px solid",
         borderColor:
           mode === "light" ? "rgba(0,0,0,.06)" : "rgba(255,255,255,.08)",
-        color: mode === "light" ? "text.primary" : "text.secondary", // <—
+        color: mode === "light" ? "text.primary" : "text.secondary",
       }}
     >
       <Toolbar>
-        {/* ---- left public links ---- */}
-        <Stack direction="row" spacing={1}>
+        {/* ---------- LEFT: Home + public links ---------- */}
+        <Stack direction="row" spacing={1} alignItems="center">
+          {/* NEW – Home icon */}
+          <IconButton
+            color="inherit"
+            component={Link}
+            to="/"
+            sx={{ mr: 0.5 }}
+            size="large"
+          >
+            <HomeIcon fontSize="inherit" />
+          </IconButton>
+
           <Button color="inherit" component={Link} to="/artists">
             Artists
           </Button>
@@ -60,6 +70,7 @@ export default function NavBar() {
           <Button color="inherit" component={Link} to="/venues">
             Venues
           </Button>
+
           {user && (
             <>
               <Button color="inherit" component={Link} to="/tickets">
@@ -72,15 +83,23 @@ export default function NavBar() {
           )}
         </Stack>
 
-        {/* ---- centered brand ---- */}
+        {/* ---------- CENTRE: clickable brand ---------- */}
         <Typography
+          component={Link}
+          to="/"
           variant="h6"
-          sx={{ flexGrow: 1, textAlign: "center", fontWeight: 700 }}
+          sx={{
+            flexGrow: 1,
+            textAlign: "center",
+            fontWeight: 700,
+            textDecoration: "none",
+            color: "inherit",
+          }}
         >
           Concert&nbsp;Management
         </Typography>
 
-        {/* ---- right auth/admin/toggle ---- */}
+        {/* ---------- RIGHT: cart / auth / admin / dark-mode ---------- */}
         <Stack direction="row" spacing={1} alignItems="center">
           {!user && (
             <>
@@ -119,7 +138,7 @@ export default function NavBar() {
             </Button>
           )}
 
-          {/* ---- dark-mode toggle ---- */}
+          {/* Dark-mode toggle */}
           <Tooltip title="Toggle dark / light">
             <IconButton onClick={toggleColorMode} sx={{ ml: 0.5 }}>
               {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}

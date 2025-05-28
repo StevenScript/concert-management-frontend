@@ -1,14 +1,5 @@
 import React from "react";
-import { Link } from "react-router";
-import {
-  Typography,
-  CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Grid,
-} from "@mui/material";
+import { Typography, CircularProgress, Box, Container } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
 import {
   PageContainer,
@@ -19,11 +10,18 @@ import ArtistCard from "../components/cards/ArtistCard";
 
 export default function ArtistList() {
   const {
-    data: artists,
+    data: artists = [],
     isLoading,
     isError,
     error,
   } = useFetchData("http://localhost:8080/artists");
+
+  /* ---- alpha sort once data arrives ---- */
+  const sorted = [...artists].sort((a, b) =>
+    a.stageName.toLowerCase().localeCompare(b.stageName.toLowerCase(), "en", {
+      sensitivity: "base",
+    })
+  );
 
   return (
     <PageContainer>
@@ -38,14 +36,32 @@ export default function ArtistList() {
           </Typography>
         )}
 
-        {!isLoading && !isError && Array.isArray(artists) && (
-          <Grid container spacing={3}>
-            {artists.map((a) => (
-              <Grid key={a.id} item xs={12} sm={6} md={4}>
-                <ArtistCard artist={a} />
-              </Grid>
-            ))}
-          </Grid>
+        {!isLoading && !isError && (
+          <Container
+            /* the outer container just keeps everything centred */
+            sx={{ maxWidth: 1600, px: { xs: 1, md: 0 }, mx: "auto" }}
+          >
+            <Box
+              sx={{
+                display: "grid",
+                gap: { xs: 2, md: 3 },
+                /* one rule that works for every width */
+                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+              }}
+            >
+              {sorted.map((artist) => (
+                <ArtistCard
+                  key={artist.id}
+                  artist={artist}
+                  sx={{
+                    height: "100%", // 💡 card fills its grid cell
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                />
+              ))}
+            </Box>
+          </Container>
         )}
       </SectionWrapper>
     </PageContainer>

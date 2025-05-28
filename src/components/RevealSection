@@ -1,0 +1,46 @@
+import React, { useRef, useEffect } from "react";
+import { motion, useAnimation, useInView } from "framer-motion";
+import { Box } from "@mui/material";
+
+/**
+ * Wrap any content you want to reveal on scroll.
+ *
+ * Props:
+ *  • threshold  – how much of the section must be visible before the reveal starts (0-1)
+ *  • y          – how many px it should slide upward while fading (default 60)
+ *  • delay      – optional stagger delay (seconds)
+ */
+export default function RevealSection({
+  children,
+  threshold = 0.3,
+  y = 60,
+  delay = 0,
+  ...boxProps
+}) {
+  const ref            = useRef(null);
+  const inView         = useInView(ref, { once: true, amount: threshold });
+  const controls       = useAnimation();
+
+  /* start animation the moment the section enters the viewport */
+  useEffect(() => {
+    if (inView) controls.start("visible");
+  }, [inView, controls]);
+
+  const variants = {
+    hidden:  { opacity: 0, y },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, delay } },
+  };
+
+  return (
+    <Box
+      ref={ref}
+      component={motion.div}
+      variants={variants}
+      initial="hidden"
+      animate={controls}
+      {...boxProps}           // so you can pass sx / className / etc.
+    >
+      {children}
+    </Box>
+  );
+}

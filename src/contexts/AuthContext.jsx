@@ -1,86 +1,86 @@
+// src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios"; // used only for login/register hits
-import api from "../api/apiClient"; // configured axios instance for the rest
+import api from "../api/apiClient";
+import { loginUser, registerUser } from "../api/authApi";
 
 const AuthContext = createContext();
 
-/** Provides authentication state and auth helpers to the tree. */
 export function AuthProvider({ children }) {
-  /* ---------- state ---------- */
+  // load from localStorage
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user");
-    return saved ? JSON.parse(saved) : null;
+    const u = localStorage.getItem("user");
+    return u ? JSON.parse(u) : null;
   });
 
-  /* ---------- sync Authorization header ---------- */
+  // keep axios in sync
   useEffect(() => {
-    if (user?.token) {
-      api.defaults.headers.common.Authorization = `Bearer ${user.token}`;
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      api.defaults.headers.common.Authorization = `Bearer ${token}`;
     } else {
       delete api.defaults.headers.common.Authorization;
     }
   }, [user]);
 
-  /* ---------- helpers ---------- */
-  const saveUser = (u) => {
-    setUser(u);
-    localStorage.setItem("user", JSON.stringify(u));
+  // helper to persist everything
+  const saveAuth = ({ user, accessToken, refreshToken }) => {
+    setUser(user);
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+    api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
   };
 
-  const clearUser = () => {
+  // clear on logout
+  const clearAuth = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    localStorage.clear();
     delete api.defaults.headers.common.Authorization;
   };
 
-  /* ---------- login ---------- */
+  // login → call API, store tokens + user
   const login = async (username, password) => {
-    const { data } = await axios.post("http://localhost:8080/api/login", {
+    const { accessToken, refreshToken, user } = await loginUser({
       username,
       password,
     });
-
-    // data = { username, email, role, token }
-    const userObj = {
-      id: data.id,
-      username: data.username,
-      email: data.email,
-      role: data.role,
-      token: data.token,
-    };
-    saveUser(userObj);
+    saveAuth({ user, accessToken, refreshToken });
   };
 
-  /* ---------- register ---------- */
+  // register → same shape
   const register = async (username, email, password, role) => {
-    const { data } = await axios.post("http://localhost:8080/api/register", {
-      id: data.id,
+    const { accessToken, refreshToken, user } = await registerUser({
       username,
       email,
       password,
       role,
     });
-
-    // data = { username, email, role, token }
-    const userObj = {
-      id: data.id,
-      username: data.username,
-      email: data.email,
-      role: data.role,
-      token: data.token,
-    };
-    saveUser(userObj);
+    saveAuth({ user, accessToken, refreshToken });
   };
 
-  /* ---------- context ---------- */
+  // logout
+  const logout = clearAuth;
+
+  // manual refresh helper (optional)
+  const refresh = async () => {
+    const rt = localStorage.getItem("refreshToken");
+    if (!rt) throw new Error("No refresh token");
+    const { accessToken, refreshToken: newRefresh } = (
+      await api.post("/api/refresh", { refreshToken: rt })
+    ).data;
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", newRefresh);
+    api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+    return accessToken;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout: clearUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout, refresh }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-/** Hook to access { user, login, register, logout } */
 export function useAuth() {
   return useContext(AuthContext);
 }

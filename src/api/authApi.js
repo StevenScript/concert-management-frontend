@@ -1,30 +1,28 @@
-import api from "./apiClient";
+// src/api/authAPI.js
+import axios from "axios";
+const BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
 /**
- * Register a new user and save JWT to localStorage.
- * @param {RegisterRequest} data
- * @returns {Promise<AuthResponse>}
+ * @typedef {Object} AuthResponse
+ * @property {string} accessToken
+ * @property {string} refreshToken
+ * @property {Object} user       // { id, username, email, role }
  */
-export const registerUser = (data) =>
-  api.post("/api/register", data).then((r) => {
-    localStorage.setItem("authToken", r.data.token);
-    return r.data;
-  });
 
 /**
- * Log in a user and save JWT to localStorage.
- * @param {LoginRequest} data
- * @returns {Promise<AuthResponse>}
+ * Register a new user. Returns { accessToken, refreshToken, user }.
  */
-export const loginUser = (data) =>
-  api.post("/api/login", data).then((r) => {
-    localStorage.setItem("authToken", r.data.token);
-    return r.data;
-  });
+export function registerUser({ username, email, password, role }) {
+  return axios
+    .post(`${BASE}/api/register`, { username, email, password, role })
+    .then((r) => r.data);
+}
 
 /**
- * Remove JWT from localStorage to log out the user.
+ * Log in. Returns { accessToken, refreshToken, user }.
  */
-export const logout = () => {
-  localStorage.removeItem("authToken");
-};
+export function loginUser({ username, password }) {
+  return axios
+    .post(`${BASE}/api/login`, { username, password })
+    .then((r) => r.data);
+}

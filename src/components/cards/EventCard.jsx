@@ -7,18 +7,33 @@ import {
   Box,
   useTheme,
 } from "@mui/material";
-import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router";
 
 export default function EventCard({ event, venueName }) {
   const navigate = useNavigate();
   const theme = useTheme();
   const isLight = theme.palette.mode === "light";
 
+  /* ---------- derived values ---------- */
   const dateFmt = new Intl.DateTimeFormat("en-CA").format(
     new Date(event.eventDate)
   );
 
+  // Prefer the new field; fall back to legacy availableTickets
+  const ticketsLeft =
+    event.ticketsLeft != null ? event.ticketsLeft : event.availableTickets;
+
+  const soldOut = ticketsLeft === 0;
+  const lowInventory = ticketsLeft > 0 && ticketsLeft <= 10; // tweak as you like
+  const chipsColor = soldOut
+    ? "error.main"
+    : lowInventory
+    ? "warning.main"
+    : "primary.main";
+  const chipsLabel = soldOut ? "Sold Out" : `${ticketsLeft} tickets left`;
+
+  /* ---------- render ---------- */
   return (
     <Card
       component={motion.div}
@@ -31,8 +46,8 @@ export default function EventCard({ event, venueName }) {
       }}
       transition={{ type: "spring", stiffness: 250 }}
       sx={{
-        borderRadius: 4,
         cursor: "pointer",
+        borderRadius: 4,
         overflow: "visible",
         background: isLight
           ? "linear-gradient(145deg,#f1f5f9 0%,#ffffff 100%)"
@@ -41,30 +56,29 @@ export default function EventCard({ event, venueName }) {
       }}
       onClick={() => navigate(`/events/${event.id}`)}
     >
+      {/* ---------- header ---------- */}
       <CardHeader
         title={event.name}
         subheader={dateFmt}
         sx={{ pb: 0 }}
-        titleTypographyProps={{
-          fontWeight: 600,
-          color: theme.palette.text.primary,
-        }}
+        titleTypographyProps={{ fontWeight: 600, color: "text.primary" }}
       />
 
+      {/* ---------- body ---------- */}
       <CardContent sx={{ pt: 1 }}>
         <Typography
           variant="body2"
           color={isLight ? "text.secondary" : "grey.300"}
         >
-          {venueName} · ${event.ticketPrice.toFixed(2)}
+          {venueName ?? " "} · ${event.ticketPrice.toFixed(2)}
         </Typography>
 
         <Box sx={{ mt: 1 }}>
           <Typography
             variant="caption"
-            sx={{ color: isLight ? "primary.main" : "#93c5fd" }}
+            sx={{ color: chipsColor, fontWeight: 600 }}
           >
-            {event.availableTickets} tickets left
+            {chipsLabel}
           </Typography>
         </Box>
       </CardContent>

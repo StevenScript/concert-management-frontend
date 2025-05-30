@@ -1,60 +1,56 @@
 import axios from "axios";
 
-// Base URL for all API calls (ends up used by both front- and backend endpoints)
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
-// Create your app-wide axios instance
-const api = axios.create({
-  baseURL: BASE_URL,
-});
+const api = axios.create({ baseURL: BASE_URL });
 
-// On every request, inject the current accessToken if present
+// ── Attach access token on every request ───────────────────────────────────
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
+  const accessToken = localStorage.getItem("accessToken");
+  if (accessToken) {
     config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
 });
 
-// If we get a 401, try to refresh and then retry once
+// ── Automatic refresh on 401 ────────────────────────────────────────────────
 api.interceptors.response.use(
   (res) => res,
-  async (error) => {
-    const original = error.config;
-    if (error.response?.status === 401 && !original._retry) {
+  async (err) => {
+    const original = err.config;
+    if (
+      err.response?.status === 401 &&
+      !original._retry &&
+      original.url !== "/api/refresh"
+    ) {
       original._retry = true;
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (!refreshToken) {
-        // no refresh token → force logout
-        localStorage.clear();
-        window.location.href = "/login";
-        return Promise.reject(error);
-      }
       try {
-        // call your refresh endpoint
+        // call your back-end refresh endpoint
+        const refreshToken = localStorage.getItem("refreshToken");
         const { data } = await axios.post(`${BASE_URL}/api/refresh`, {
           refreshToken,
         });
-        const { accessToken, refreshToken: newRefresh } = data;
+        const { accessToken: newAccess, refreshToken: newRefresh } = data;
 
-        // persist
-        localStorage.setItem("accessToken", accessToken);
+        // save new tokens
+        localStorage.setItem("accessToken", newAccess);
         localStorage.setItem("refreshToken", newRefresh);
+        api.defaults.headers.common.Authorization = `Bearer ${newAccess}`;
 
-        // update header and retry
-        api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-        original.headers.Authorization = `Bearer ${accessToken}`;
+        // retry the original request
+        original.headers.Authorization = `Bearer ${newAccess}`;
         return api(original);
-      } catch (e) {
-        // refresh failed → logout
-        localStorage.clear();
+      } catch (refreshErr) {
+        // refresh failed → force logout
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
         window.location.href = "/login";
-        return Promise.reject(e);
+        return Promise.reject(refreshErr);
       }
     }
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
 

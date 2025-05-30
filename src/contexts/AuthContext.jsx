@@ -1,20 +1,17 @@
-// src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import api from "../api/apiClient";
-import { loginUser, registerUser } from "../api/authApi";
+import axios from "axios"; // for login/register/refresh
+import api from "../api/apiClient"; // your preconfigured axios instance
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // load from localStorage
   const [user, setUser] = useState(() => {
-    const u = localStorage.getItem("user");
-    return u ? JSON.parse(u) : null;
+    const raw = localStorage.getItem("user");
+    return raw ? JSON.parse(raw) : null;
   });
 
-  // keep axios in sync
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = user?.accessToken;
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
     } else {
@@ -22,60 +19,110 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  // helper to persist everything
-  const saveAuth = ({ user, accessToken, refreshToken }) => {
-    setUser(user);
-    localStorage.setItem("user", JSON.stringify(user));
+  const saveAll = (
+    { id, username, email, role },
+    { accessToken, refreshToken }
+  ) => {
+    const u = { id, username, email, role, accessToken, refreshToken };
+    setUser(u);
+    localStorage.setItem("user", JSON.stringify(u));
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
-    api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
   };
 
-  // clear on logout
-  const clearAuth = () => {
+  const logout = () => {
     setUser(null);
-    localStorage.clear();
+    localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     delete api.defaults.headers.common.Authorization;
   };
 
-  // login → call API, store tokens + user
-  const login = async (username, password) => {
-    const { accessToken, refreshToken, user } = await loginUser({
-      username,
-      password,
-    });
-    saveAuth({ user, accessToken, refreshToken });
-  };
-
-  // register → same shape
-  const register = async (username, email, password, role) => {
-    const { accessToken, refreshToken, user } = await registerUser({
-      username,
-      email,
-      password,
-      role,
-    });
-    saveAuth({ user, accessToken, refreshToken });
-  };
-
-  // logout
-  const logout = clearAuth;
-
-  // manual refresh helper (optional)
   const refresh = async () => {
     const rt = localStorage.getItem("refreshToken");
-    if (!rt) throw new Error("No refresh token");
-    const { accessToken, refreshToken: newRefresh } = (
-      await api.post("/api/refresh", { refreshToken: rt })
-    ).data;
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", newRefresh);
-    api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-    return accessToken;
+    const { data } = await axios.post(
+      `${process.env.REACT_APP_API_URL || "http://localhost:8080"}/api/refresh`,
+      { refreshToken: rt }
+    );
+    const { accessToken: newA, refreshToken: newR } = data;
+    const { id, username, email, role } = user;
+    saveAll(
+      { id, username, email, role },
+      { accessToken: newA, refreshToken: newR }
+    );
+    return newA;
+  };
+
+  useEffect(() => {
+    const reqI = api.interceptors.request.use((cfg) => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        cfg.headers = { ...cfg.headers, Authorization: `Bearer ${token}` };
+      }
+      return cfg;
+    });
+
+    const resI = api.interceptors.response.use(
+      (res) => res,
+      async (err) => {
+        const original = err.config;
+        if (
+          err.response?.status === 401 &&
+          !original._retry &&
+          original.url !== "/api/refresh"
+        ) {
+          original._retry = true;
+          try {
+            const newToken = await refresh();
+            original.headers.Authorization = `Bearer ${newToken}`;
+            return api.request(original);
+          } catch {
+            logout();
+            return Promise.reject(err);
+          }
+        }
+        return Promise.reject(err);
+      }
+    );
+
+    return () => {
+      api.interceptors.request.eject(reqI);
+      api.interceptors.response.eject(resI);
+    };
+  }, [user]);
+
+  const login = async (username, password) => {
+    const { data } = await axios.post(
+      `${process.env.REACT_APP_API_URL || "http://localhost:8080"}/api/login`,
+      { username, password }
+    );
+    const { id, username: u, email, role, accessToken, refreshToken } = data;
+    saveAll({ id, username: u, email, role }, { accessToken, refreshToken });
+  };
+
+  const register = async (username, email, password, role) => {
+    const { data } = await axios.post(
+      `${
+        process.env.REACT_APP_API_URL || "http://localhost:8080"
+      }/api/register`,
+      { username, email, password, role }
+    );
+    const {
+      id,
+      username: u,
+      email: e,
+      role: r,
+      accessToken,
+      refreshToken,
+    } = data;
+    saveAll(
+      { id, username: u, email: e, role: r },
+      { accessToken, refreshToken }
+    );
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, refresh }}>
+    <AuthContext.Provider value={{ user, login, register, refresh, logout }}>
       {children}
     </AuthContext.Provider>
   );

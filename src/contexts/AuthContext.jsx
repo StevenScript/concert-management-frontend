@@ -1,6 +1,7 @@
+// src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios"; // for login/register/refresh
-import api from "../api/apiClient"; // your preconfigured axios instance
+import api from "../api/apiClient";
 
 const AuthContext = createContext();
 
@@ -10,6 +11,7 @@ export function AuthProvider({ children }) {
     return raw ? JSON.parse(raw) : null;
   });
 
+  // Whenever "user" changes, ensure api has the correct Authorization header
   useEffect(() => {
     const token = user?.accessToken;
     if (token) {
@@ -19,6 +21,7 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
+  // Helper to save everything (user info + tokens) to state + localStorage
   const saveAll = (
     { id, username, email, role },
     { accessToken, refreshToken }
@@ -38,12 +41,13 @@ export function AuthProvider({ children }) {
     delete api.defaults.headers.common.Authorization;
   };
 
+  // Call this to get a fresh access token
   const refresh = async () => {
     const rt = localStorage.getItem("refreshToken");
-    const { data } = await axios.post(
-      `${process.env.REACT_APP_API_URL || "http://localhost:8080"}/api/refresh`,
-      { refreshToken: rt }
-    );
+    const base = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+    const { data } = await axios.post(`${base}/api/refresh`, {
+      refreshToken: rt,
+    });
     const { accessToken: newA, refreshToken: newR } = data;
     const { id, username, email, role } = user;
     saveAll(
@@ -53,6 +57,7 @@ export function AuthProvider({ children }) {
     return newA;
   };
 
+  // Set up interceptors once (depends on "user")
   useEffect(() => {
     const reqI = api.interceptors.request.use((cfg) => {
       const token = localStorage.getItem("accessToken");
@@ -69,7 +74,7 @@ export function AuthProvider({ children }) {
         if (
           err.response?.status === 401 &&
           !original._retry &&
-          original.url !== "/api/refresh"
+          !original.url.includes("/api/refresh")
         ) {
           original._retry = true;
           try {
@@ -92,21 +97,23 @@ export function AuthProvider({ children }) {
   }, [user]);
 
   const login = async (username, password) => {
-    const { data } = await axios.post(
-      `${process.env.REACT_APP_API_URL || "http://localhost:8080"}/api/login`,
-      { username, password }
-    );
+    const base = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+    const { data } = await axios.post(`${base}/api/login`, {
+      username,
+      password,
+    });
     const { id, username: u, email, role, accessToken, refreshToken } = data;
     saveAll({ id, username: u, email, role }, { accessToken, refreshToken });
   };
 
   const register = async (username, email, password, role) => {
-    const { data } = await axios.post(
-      `${
-        process.env.REACT_APP_API_URL || "http://localhost:8080"
-      }/api/register`,
-      { username, email, password, role }
-    );
+    const base = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+    const { data } = await axios.post(`${base}/api/register`, {
+      username,
+      email,
+      password,
+      role,
+    });
     const {
       id,
       username: u,

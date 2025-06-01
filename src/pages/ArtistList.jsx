@@ -8,13 +8,16 @@ import {
 } from "../utils/StyledComponents";
 import ArtistCard from "../components/cards/ArtistCard";
 
+// Derive base URL from CRA env var or fallback to localhost
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+
 export default function ArtistList() {
   const {
     data: artists = [],
     isLoading,
     isError,
     error,
-  } = useFetchData("http://localhost:8080/artists");
+  } = useFetchData(`${BASE}/artists`);
 
   /* ---- alpha sort once data arrives ---- */
   const sorted = [...artists].sort((a, b) =>

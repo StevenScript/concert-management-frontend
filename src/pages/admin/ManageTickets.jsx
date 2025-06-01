@@ -30,6 +30,8 @@ import {
   deleteTicket,
 } from "../../api/tickets";
 
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+
 export default function ManageTickets() {
   /* ---------- fetch ---------- */
   const {
@@ -38,14 +40,14 @@ export default function ManageTickets() {
     isError: errTickets,
     error: ticketsErr,
     refetch: refetchTickets,
-  } = useFetchData("http://localhost:8080/tickets");
+  } = useFetchData(`${BASE}/tickets`);
 
   const {
     data: events,
     isLoading: loadingEvents,
     isError: errEvents,
     error: eventsErr,
-  } = useFetchData("http://localhost:8080/events");
+  } = useFetchData(`${BASE}/events`);
 
   /* ---------- form state ---------- */
   const [form, setForm] = useState({

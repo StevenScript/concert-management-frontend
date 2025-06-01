@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Container, Box, Typography, Skeleton } from "@mui/material";
 import { motion } from "framer-motion";
 
+import api from "../api/apiClient";
 import EventCard from "./cards/EventCard";
 import ArtistCard from "./cards/ArtistCard";
 import VenueCard from "./cards/VenueCard";
@@ -33,10 +34,9 @@ export default function LandingSections({ limit = 8 }) {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["landingStats", limit],
     queryFn: () =>
-      fetch(`http://localhost:8080/stats/landing?limit=${limit}`).then((r) => {
-        if (!r.ok) throw new Error(`Request failed: ${r.status}`);
-        return r.json();
-      }),
+      api
+        .get("/stats/landing", { params: { limit } })
+        .then((response) => response.data),
   });
 
   /* graceful loader */

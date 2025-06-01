@@ -1,28 +1,27 @@
-// src/api/authAPI.js
-import axios from "axios";
-const BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
+import api from "./apiClient"; // <-- centralised axios instance ✅
 
 /**
  * @typedef {Object} AuthResponse
  * @property {string} accessToken
  * @property {string} refreshToken
- * @property {Object} user       // { id, username, email, role }
+ * @property {Object} user          // { id, username, email, role }
  */
 
 /**
- * Register a new user. Returns { accessToken, refreshToken, user }.
+ * Register a new user – returns { accessToken, refreshToken, user }.
+ * @param {{ username:string, email:string, password:string, role:string }} body
+ * @returns {Promise<AuthResponse>}
  */
-export function registerUser({ username, email, password, role }) {
-  return axios
-    .post(`${BASE}/api/register`, { username, email, password, role })
-    .then((r) => r.data);
+export function registerUser(body) {
+  // /api/register is relative to the baseURL already set in apiClient
+  return api.post("/api/register", body).then((res) => res.data);
 }
 
 /**
- * Log in. Returns { accessToken, refreshToken, user }.
+ * Log in – returns { accessToken, refreshToken, user }.
+ * @param {{ username:string, password:string }} body
+ * @returns {Promise<AuthResponse>}
  */
-export function loginUser({ username, password }) {
-  return axios
-    .post(`${BASE}/api/login`, { username, password })
-    .then((r) => r.data);
+export function loginUser(body) {
+  return api.post("/api/login", body).then((res) => res.data);
 }

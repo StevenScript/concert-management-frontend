@@ -14,7 +14,8 @@ import {
   Title,
 } from "../utils/StyledComponents";
 
-const API = "http://localhost:8080";
+// Derive base URL from CRA env var or fallback to localhost
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 export default function EventList() {
   /* ---- upcoming events (already date-sorted by backend) ---- */
@@ -23,10 +24,10 @@ export default function EventList() {
     isLoading,
     isError,
     error,
-  } = useFetchData(`${API}/events/upcoming`);
+  } = useFetchData(`${BASE}/events/upcoming`);
 
   /* ---- venue map for nicer labels ---- */
-  const { data: venues = [] } = useFetchData(`${API}/venues`);
+  const { data: venues = [] } = useFetchData(`${BASE}/venues`);
   const venueMap = Object.fromEntries(venues.map((v) => [v.id, v.name]));
 
   return (

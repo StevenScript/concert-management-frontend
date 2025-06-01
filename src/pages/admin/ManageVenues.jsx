@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+// src/pages/admin/ManageVenues.jsx
+
+import React, { useState } from "react";
 import {
   Typography,
   CircularProgress,
@@ -17,28 +19,36 @@ import {
   DialogContentText,
   DialogActions,
 } from "@mui/material";
-import {
-  fetchVenues,
-  createVenue,
-  updateVenue,
-  deleteVenue,
-} from "../../api/venues";
+
+import useFetchData from "../../hooks/useFetchData";
+import { createVenue, updateVenue, deleteVenue } from "../../api/venues";
 import {
   PageContainer,
   SectionWrapper,
   Title,
 } from "../../utils/StyledComponents";
 
-export default function ManageVenues() {
-  const [venues, setVenues] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+// Pull BASE from env (falls back to localhost)
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
+export default function ManageVenues() {
+  // ── 1) Load all venues via our hook ─────────────────────────────────
+  const {
+    data: venues = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useFetchData(`${BASE}/venues`);
+
+  // ── 2) Local state for the “Create new” form ──────────────────────────
   const [newVenue, setNewVenue] = useState({
     name: "",
     location: "",
     capacity: "",
   });
+
+  // ── 3) Track which row (if any) is currently in “edit” mode ───────────
   const [editId, setEditId] = useState(null);
   const [editData, setEditData] = useState({
     name: "",
@@ -46,25 +56,10 @@ export default function ManageVenues() {
     capacity: "",
   });
 
+  // ── 4) Track which venue is pending deletion ─────────────────────────
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  /* ---------- data ---------- */
-  const loadVenues = async () => {
-    try {
-      setLoading(true);
-      const data = await fetchVenues();
-      setVenues(data);
-    } catch (e) {
-      setError(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    loadVenues();
-  }, []);
-
-  /* ---------- create ---------- */
+  // ── Handler: Create a brand‐new venue ────────────────────────────────
   const handleCreate = async () => {
     try {
       const created = await createVenue({
@@ -72,14 +67,16 @@ export default function ManageVenues() {
         location: newVenue.location,
         capacity: parseInt(newVenue.capacity, 10),
       });
-      setVenues((prev) => [...prev, created]);
+      // After we successfully create, clear the “new” inputs and refresh list:
       setNewVenue({ name: "", location: "", capacity: "" });
+      refetch();
     } catch (e) {
-      setError(e);
+      console.error("Failed to create venue:", e);
+      // You could set local error state here if you want to show a message
     }
   };
 
-  /* ---------- edit ---------- */
+  // ── Begin editing an existing venue ──────────────────────────────────
   const startEdit = (v) => {
     setEditId(v.id);
     setEditData({
@@ -88,6 +85,8 @@ export default function ManageVenues() {
       capacity: v.capacity.toString(),
     });
   };
+
+  // ── Handler: Save changes to an existing venue ────────────────────────
   const handleUpdate = async (id) => {
     try {
       const updated = await updateVenue(id, {
@@ -95,30 +94,40 @@ export default function ManageVenues() {
         location: editData.location,
         capacity: parseInt(editData.capacity, 10),
       });
-      setVenues((prev) => prev.map((v) => (v.id === id ? updated : v)));
+      // After successful update, exit edit mode and refresh:
       setEditId(null);
+      refetch();
     } catch (e) {
-      setError(e);
+      console.error("Failed to update venue:", e);
     }
   };
 
-  /* ---------- delete ---------- */
+  // ── Confirm & execute delete ─────────────────────────────────────────
   const confirmDelete = async () => {
-    await deleteVenue(deleteTarget.id);
-    setDeleteTarget(null);
-    loadVenues();
+    try {
+      await deleteVenue(deleteTarget.id);
+      setDeleteTarget(null);
+      refetch();
+    } catch (e) {
+      console.error("Failed to delete venue:", e);
+    }
   };
 
-  /* ---------- ui ---------- */
-  if (loading) return <CircularProgress data-testid="loading-indicator" />;
-  if (error) return <Typography color="error">{error.message}</Typography>;
+  // ── Show a loader or error if needed ────────────────────────────────
+  if (isLoading) return <CircularProgress data-testid="loading-indicator" />;
+  if (isError)
+    return (
+      <Typography color="error" data-testid="error-message">
+        {error.message}
+      </Typography>
+    );
 
   return (
     <PageContainer>
       <SectionWrapper>
         <Title>Manage Venues</Title>
 
-        {/* ---- create form ---- */}
+        {/* ── “Create new” form ──────────────────────────────────────────── */}
         <Paper sx={{ p: 2, mb: 4 }}>
           <Typography variant="h6">Add New Venue</Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 1 }}>
@@ -126,23 +135,27 @@ export default function ManageVenues() {
               label="Name"
               value={newVenue.name}
               onChange={(e) =>
-                setNewVenue({ ...newVenue, name: e.target.value })
+                setNewVenue((prev) => ({ ...prev, name: e.target.value }))
               }
+              required
             />
             <TextField
               label="Location"
               value={newVenue.location}
               onChange={(e) =>
-                setNewVenue({ ...newVenue, location: e.target.value })
+                setNewVenue((prev) => ({ ...prev, location: e.target.value }))
               }
+              required
             />
             <TextField
               label="Capacity"
               type="number"
               value={newVenue.capacity}
               onChange={(e) =>
-                setNewVenue({ ...newVenue, capacity: e.target.value })
+                setNewVenue((prev) => ({ ...prev, capacity: e.target.value }))
               }
+              required
+              sx={{ width: 120 }}
             />
             <Button variant="contained" onClick={handleCreate}>
               Create Venue
@@ -150,7 +163,7 @@ export default function ManageVenues() {
           </Box>
         </Paper>
 
-        {/* ---- table ---- */}
+        {/* ── Venues table (with inline editing) ─────────────────────────── */}
         <Table>
           <TableHead>
             <TableRow>
@@ -163,13 +176,16 @@ export default function ManageVenues() {
           <TableBody>
             {venues.map((v) => (
               <TableRow key={v.id} data-testid={`venue-${v.id}`}>
-                {/* Name */}
+                {/* ─ Name ─ */}
                 <TableCell>
                   {editId === v.id ? (
                     <TextField
                       value={editData.name}
                       onChange={(e) =>
-                        setEditData({ ...editData, name: e.target.value })
+                        setEditData((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
                       }
                     />
                   ) : (
@@ -177,13 +193,16 @@ export default function ManageVenues() {
                   )}
                 </TableCell>
 
-                {/* Location */}
+                {/* ─ Location ─ */}
                 <TableCell>
                   {editId === v.id ? (
                     <TextField
                       value={editData.location}
                       onChange={(e) =>
-                        setEditData({ ...editData, location: e.target.value })
+                        setEditData((prev) => ({
+                          ...prev,
+                          location: e.target.value,
+                        }))
                       }
                     />
                   ) : (
@@ -191,25 +210,33 @@ export default function ManageVenues() {
                   )}
                 </TableCell>
 
-                {/* Capacity */}
+                {/* ─ Capacity ─ */}
                 <TableCell>
                   {editId === v.id ? (
                     <TextField
                       type="number"
                       value={editData.capacity}
                       onChange={(e) =>
-                        setEditData({ ...editData, capacity: e.target.value })
+                        setEditData((prev) => ({
+                          ...prev,
+                          capacity: e.target.value,
+                        }))
                       }
+                      sx={{ width: 100 }}
                     />
                   ) : (
                     v.capacity
                   )}
                 </TableCell>
 
-                {/* Actions */}
+                {/* ─ Actions ─ */}
                 <TableCell>
                   {editId === v.id ? (
-                    <Button size="small" onClick={() => handleUpdate(v.id)}>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={() => handleUpdate(v.id)}
+                    >
                       Save
                     </Button>
                   ) : (
@@ -233,7 +260,7 @@ export default function ManageVenues() {
         </Table>
       </SectionWrapper>
 
-      {/* ---- delete dialog ---- */}
+      {/* ── Delete Confirmation Dialog ──────────────────────────────────── */}
       {deleteTarget && (
         <Dialog
           open

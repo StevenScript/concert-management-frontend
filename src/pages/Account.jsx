@@ -16,17 +16,19 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import useFetchData from "../hooks/useFetchData";
 import { updateUserSelf } from "../api/users";
+import api from "../api/apiClient"; // use the preconfigured axios instance
 import {
   PageContainer,
   SectionWrapper,
   Title,
 } from "../utils/StyledComponents";
 
-const API = "http://localhost:8080";
-
 export default function Account() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Derive base URL from env, fallback to localhost
+  const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
   /* ---- tickets query ---- */
   const {
@@ -34,7 +36,7 @@ export default function Account() {
     isLoading,
     isError,
     error,
-  } = useFetchData(`${API}/tickets/buyer/${encodeURIComponent(user.email)}`);
+  } = useFetchData(`${BASE}/tickets/buyer/${encodeURIComponent(user.email)}`);
 
   /* ---- edit mode state ---- */
   const [edit, setEdit] = useState(false);
@@ -53,7 +55,7 @@ export default function Account() {
     const payload = { ...form };
     if (!payload.password) delete payload.password; // ignore empty pwd
     await updateUserSelf(user.id, payload);
-    // force logout – a real app would refresh token instead
+    // force logout – a real app would refresh token instead
     logout();
     navigate("/login");
   };
@@ -146,9 +148,7 @@ export default function Account() {
             My Tickets
           </Typography>
           {tickets.length === 0 ? (
-            <Typography>
-              You haven&rsquo;t purchased any tickets yet.
-            </Typography>
+            <Typography>You haven’t purchased any tickets yet.</Typography>
           ) : (
             <Table>
               <TableHead>

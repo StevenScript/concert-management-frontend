@@ -19,6 +19,8 @@ import {
 import useFetchData from "../../hooks/useFetchData";
 import { createArtist, updateArtist, deleteArtist } from "../../api/artists";
 
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+
 export default function ManageArtists() {
   const {
     data: artists,
@@ -26,7 +28,7 @@ export default function ManageArtists() {
     isError,
     error,
     refetch,
-  } = useFetchData("http://localhost:8080/artists");
+  } = useFetchData(`${BASE}/artists`);
 
   /* ---------- form state ---------- */
   const [form, setForm] = useState({

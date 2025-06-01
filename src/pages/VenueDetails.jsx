@@ -1,3 +1,4 @@
+// src/pages/VenueDetails.jsx
 import React from "react";
 import { useParams } from "react-router";
 import {
@@ -15,7 +16,8 @@ import {
   Title,
 } from "../utils/StyledComponents";
 
-const API = "http://localhost:8080";
+// Derive base URL from CRA env var or fallback to localhost
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 export default function VenueDetails() {
   const { venueId } = useParams();
@@ -26,16 +28,16 @@ export default function VenueDetails() {
     isLoading: loadingVenue,
     isError: venueErr,
     error: venueError,
-  } = useFetchData(`${API}/venues/${venueId}`);
+  } = useFetchData(`${BASE}/venues/${venueId}`);
 
   /* ---------- upcoming events ---------- */
   const { data: events = [], isLoading: loadingEvents } = useFetchData(
-    `${API}/venues/${venueId}/upcoming-events`
+    `${BASE}/venues/${venueId}/upcoming-events`
   );
 
   /* ---------- artists ---------- */
   const { data: artists = [], isLoading: loadingArtists } = useFetchData(
-    `${API}/venues/${venueId}/artists`
+    `${BASE}/venues/${venueId}/artists`
   );
 
   /* ---------- guards ---------- */

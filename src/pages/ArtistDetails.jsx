@@ -15,7 +15,8 @@ import {
   Title,
 } from "../utils/StyledComponents";
 
-const API = "http://localhost:8080";
+// Derive base URL from CRA env var or fallback to localhost
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 export default function ArtistDetails() {
   const { artistId } = useParams();
@@ -26,14 +27,14 @@ export default function ArtistDetails() {
     isLoading: loadingArtist,
     isError: artistError,
     error: artistErr,
-  } = useFetchData(`${API}/artists/${artistId}`);
+  } = useFetchData(`${BASE}/artists/${artistId}`);
 
   /* ---------- events ---------- */
   const {
     data: events = [],
     isLoading: loadingEvents,
     isError: eventsError,
-  } = useFetchData(`${API}/artists/${artistId}/events`);
+  } = useFetchData(`${BASE}/artists/${artistId}/events`);
 
   /* ---------- tickets-left map {eventId: left} ---------- */
   const [leftMap, setLeftMap] = useState({});
@@ -47,7 +48,7 @@ export default function ArtistDetails() {
     const fetchAll = async () => {
       const entries = await Promise.all(
         events.map(async (e) => {
-          const res = await fetch(`${API}/events/${e.id}/tickets-left`);
+          const res = await fetch(`${BASE}/events/${e.id}/tickets-left`);
           const left = await res.json();
           return [e.id, left];
         })

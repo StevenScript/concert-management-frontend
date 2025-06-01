@@ -25,7 +25,9 @@ import {
 } from "@mui/material";
 
 import useFetchData from "../../hooks/useFetchData";
-import { createEvent, updateEvent, deleteEvent } from "../../api/events"; // ← NEW
+import { createEvent, updateEvent, deleteEvent } from "../../api/events";
+
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 export default function ManageEvents() {
   /* ---------- fetch lists ---------- */
@@ -35,21 +37,21 @@ export default function ManageEvents() {
     isError: errEvents,
     error: eventsErr,
     refetch: refetchEvents,
-  } = useFetchData("http://localhost:8080/events");
+  } = useFetchData(`${BASE}/events`);
 
   const {
     data: venues,
     isLoading: loadingVenues,
     isError: errVenues,
     error: venuesErr,
-  } = useFetchData("http://localhost:8080/venues");
+  } = useFetchData(`${BASE}/venues`);
 
   const {
     data: artists,
     isLoading: loadingArtists,
     isError: errArtists,
     error: artistsErr,
-  } = useFetchData("http://localhost:8080/artists");
+  } = useFetchData(`${BASE}/artists`);
 
   /* ---------- form state ---------- */
   const [form, setForm] = useState({
@@ -148,7 +150,6 @@ export default function ManageEvents() {
         {/* ---- form ---- */}
         <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
           <Stack direction="row" spacing={2} flexWrap="wrap">
-            {/* All TextFields / Selects (same as previous version)… */}
             <TextField
               label="Event Name"
               name="name"

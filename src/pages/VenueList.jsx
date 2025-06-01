@@ -1,3 +1,4 @@
+// src/pages/VenueList.jsx
 import React from "react";
 import { Typography, CircularProgress, Box, Container } from "@mui/material";
 import useFetchData from "../hooks/useFetchData";
@@ -8,13 +9,16 @@ import {
   Title,
 } from "../utils/StyledComponents";
 
+// Derive base URL from CRA env var or fallback to localhost
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+
 export default function VenueList() {
   const {
     data: venues = [],
     isLoading,
     isError,
     error,
-  } = useFetchData("http://localhost:8080/venues");
+  } = useFetchData(`${BASE}/venues`);
 
   /* ---- alpha sort ---- */
   const sorted = [...venues].sort((a, b) =>

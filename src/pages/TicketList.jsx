@@ -20,6 +20,9 @@ import {
   Title,
 } from "../utils/StyledComponents";
 
+// Derive base URL from CRA env var or fallback to localhost
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+
 export default function TicketList() {
   const { user } = useAuth(); // ProtectedRoute guarantees presence
   const navigate = useNavigate();
@@ -29,10 +32,7 @@ export default function TicketList() {
     isLoading,
     isError,
     error,
-    refetch,
-  } = useFetchData(
-    `http://localhost:8080/tickets/buyer/${encodeURIComponent(user.email)}`
-  );
+  } = useFetchData(`${BASE}/tickets/buyer/${encodeURIComponent(user.email)}`);
 
   /* ---------- loading & error states ---------- */
   if (isLoading) {
@@ -66,7 +66,7 @@ export default function TicketList() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Ticket ID</TableCell>
+                  <TableCell>Ticket ID</TableCell>
                   <TableCell>Event</TableCell>
                   <TableCell>Date</TableCell>
                   <TableCell>Venue</TableCell>

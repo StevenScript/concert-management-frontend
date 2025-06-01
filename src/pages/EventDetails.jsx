@@ -18,7 +18,8 @@ import {
   Title,
 } from "../utils/StyledComponents";
 
-const API = "http://localhost:8080";
+// Derive base URL from CRA env var or fallback to localhost
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 export default function EventDetails() {
   const { eventId } = useParams();
@@ -30,18 +31,18 @@ export default function EventDetails() {
     isLoading,
     isError,
     error,
-  } = useFetchData(`${API}/events/${eventId}`);
+  } = useFetchData(`${BASE}/events/${eventId}`);
 
   /* ---------- tickets left ---------- */
   const {
     data: ticketsLeft,
     isLoading: loadingLeft,
     refetch: refetchLeft,
-  } = useFetchData(`${API}/events/${eventId}/tickets-left`);
+  } = useFetchData(`${BASE}/events/${eventId}/tickets-left`);
 
   /* ---------- venue ---------- */
   const { data: venue, isLoading: loadingVenue } = useFetchData(
-    event ? `${API}/venues/${event.venueId}` : null,
+    event ? `${BASE}/venues/${event.venueId}` : null,
     {
       enabled: !!event,
     }
@@ -56,7 +57,7 @@ export default function EventDetails() {
     const fetchArtists = async () => {
       const list = await Promise.all(
         event.artistIds.map(async (id) => {
-          const res = await fetch(`${API}/artists/${id}`);
+          const res = await fetch(`${BASE}/artists/${id}`);
           return res.json();
         })
       );

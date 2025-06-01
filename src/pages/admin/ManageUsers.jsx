@@ -30,6 +30,8 @@ import {
   deleteUser,
 } from "../../api/users";
 
+const BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+
 export default function ManageUsers() {
   /* ---------- fetch ---------- */
   const {
@@ -38,7 +40,7 @@ export default function ManageUsers() {
     isError,
     error,
     refetch,
-  } = useFetchData("http://localhost:8080/users");
+  } = useFetchData(`${BASE}/users`);
 
   /* ---------- form ---------- */
   const [form, setForm] = useState({
